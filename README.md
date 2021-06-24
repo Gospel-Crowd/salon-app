@@ -1,2 +1,5 @@
 # salon-app
-Salon App
+
+Gospel Crowd Salon App
+
+Flutter version: 1.22.5
