@@ -2,4 +2,4 @@
 
 Gospel Crowd Salon App
 
-Flutter version: 1.22.5
+Flutter version: Channel stable, 2.2.2
