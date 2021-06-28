@@ -12,43 +12,62 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context).size;
-    final screenWidth = mq.width;
-
     return Scaffold(
       body: Stack(
         children: [
           _buildBackgroundImage(),
-          _buildLoginButtons(screenWidth, context),
+          _buildLoginButtons(context),
         ],
       ),
     );
   }
 
-  Widget _buildLoginButtons(double screenWidth, BuildContext context) {
+  Widget _buildLoginButtons(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
+    final screenWidth = mq.width;
+    final screenHeight = mq.height;
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-            child: Container(
-              width: screenWidth / 1.3,
-              child: TextButton(
-                style: TextButton.styleFrom(primary: Colors.transparent),
-                onPressed: () async {
-                  await signInWithGoogle();
-                  if (FirebaseAuth.instance.currentUser != null) {
-                    addUserToDatabase();
-                    Navigator.of(context).pushNamed('/home');
-                  }
-                },
-                child: Image.asset(
-                  'assets/signinbutton/btn_google_signin_light_normal_web@2x.png',
-                ),
-              ),
-            ),
-          ),
+          _buildGoogleLoginButton(screenWidth, screenHeight, context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGoogleLoginButton(
+      double screenWidth, double screenHeight, BuildContext context) {
+    return Center(
+      child: Container(
+        width: screenWidth * 0.6,
+        height: screenHeight * 0.06,
+        child: TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white,
+            primary: Colors.black,
+          ),
+          onPressed: () async {
+            await signInWithGoogle();
+            if (FirebaseAuth.instance.currentUser != null) {
+              addUserToDatabase();
+              Navigator.of(context).pushNamed('/home');
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/signinbutton/google_logo.png'),
+              const SizedBox(
+                width: 16,
+              ),
+              Text(
+                "Googleでログイン",
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
