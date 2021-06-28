@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/constant/constants.dart' as constants;
+import 'package:salon_creator/models/user_setting_model.dart';
 
 UserModel currentSignedInUser = UserModel();
 final db = FirebaseFirestore.instance;
@@ -29,7 +30,7 @@ Future addUserToDatabase() async {
     email: user.email,
     name: user.displayName,
     role: RoleType.member,
-    settings: null,
+    settings: UserSettings(pushNotifications: true),
     created: DateTime.now().toUtc(),
   );
 
