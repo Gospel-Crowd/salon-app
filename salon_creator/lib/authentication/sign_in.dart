@@ -20,8 +20,7 @@ Future<UserCredential> signInWithGoogle() async {
 }
 
 Future addUserToDatabase() async {
-  final _auth = FirebaseAuth.instance;
-  final User user = _auth.currentUser;
+  final User user = FirebaseAuth.instance.currentUser;
 
   assert(!user.isAnonymous);
   assert(await user.getIdToken() != null);
@@ -30,19 +29,18 @@ Future addUserToDatabase() async {
     email: user.email,
     name: user.displayName,
     role: RoleType.member,
-    setting: null,
+    settings: null,
     created: DateTime.now().toUtc(),
   );
 
   await db
       .collection(constants.DBCollection.users)
-      .doc(user.email)
+      .doc(currentSignedInUser.email)
       .set(currentSignedInUser.toMap());
 }
 
 Future signOut() async {
-  final _auth = FirebaseAuth.instance;
-  final User user = _auth.currentUser;
+  final User user = FirebaseAuth.instance.currentUser;
 
   if (user != null) {
     await FirebaseAuth.instance.signOut();

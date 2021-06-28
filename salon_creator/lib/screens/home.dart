@@ -19,11 +19,12 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                  onPressed: () async {
-                    await signOut();
-                    Navigator.of(context).pushNamed('/login');
-                  },
-                  child: Text("ログアウト"))
+                onPressed: () async {
+                  await signOut();
+                  Navigator.of(context).pushNamed('/login');
+                },
+                child: Text("ログアウト"),
+              ),
             ],
           ),
         ),

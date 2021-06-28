@@ -11,19 +11,20 @@ class SalonCreatorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        routes: {
-          '/home': (context) => HomePage(),
-          '/login': (context) => LoginPage(),
+      routes: {
+        '/home': (context) => HomePage(),
+        '/login': (context) => LoginPage(),
+      },
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (ctx, snapshot) {
+          if (snapshot.hasData) {
+            return _buildHomePage(snapshot);
+          }
+          return LoginPage();
         },
-        home: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (ctx, snapshot) {
-            if (snapshot.hasData) {
-              return _buildHomePage(snapshot);
-            }
-            return LoginPage();
-          },
-        ));
+      ),
+    );
   }
 
   Widget _buildHomePage(AsyncSnapshot<User> snapshot) {
