@@ -14,7 +14,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
     final screenWidth = mq.width;
-    final screenHeight = mq.height;
 
     return Scaffold(
       body: Stack(
