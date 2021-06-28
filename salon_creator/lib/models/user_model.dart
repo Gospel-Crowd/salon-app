@@ -4,14 +4,14 @@ class UserModel {
   final String email;
   final String name;
   final RoleType role;
-  final UserSetting setting;
+  final UserSettings settings;
   final DateTime created;
 
   UserModel({
     this.email,
     this.name,
     this.role,
-    this.setting,
+    this.settings,
     this.created,
   });
 
@@ -20,7 +20,7 @@ class UserModel {
       'email': email,
       'name': name,
       'role': role.index,
-      'setting': null,
+      'setting': settings.toMap(),
       'created': created,
     };
   }
@@ -36,11 +36,11 @@ class UserModel {
         email = map['email'],
         name = map['name'],
         role = RoleType.values[map['role']],
-        setting = UserSetting.fromMap(map['setting'].cast<String, dynamic>()),
+        settings = UserSettings.fromMap(map['setting'].cast<String, dynamic>()),
         created = map['created'].toDate();
 }
 
 enum RoleType {
-  creator, // 0
-  member, // 1
+  member, // 0
+  creator, // 1
 }

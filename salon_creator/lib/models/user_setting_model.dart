@@ -1,21 +1,17 @@
-class UserSetting {
+class UserSettings {
   final bool pushNotifications;
-  bool taxInclusive;
 
-  UserSetting({
+  UserSettings({
     this.pushNotifications,
-    this.taxInclusive,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'pushNotifications': pushNotifications,
-      'taxInclusive': taxInclusive,
     };
   }
 
-  UserSetting.fromMap(Map<String, dynamic> map)
+  UserSettings.fromMap(Map<String, dynamic> map)
       : assert(map['pushNotifications'] != null),
-        pushNotifications = map['pushNotifications'],
-        taxInclusive = map['taxInclusive'];
+        pushNotifications = map['pushNotifications'];
 }
