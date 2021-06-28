@@ -40,8 +40,8 @@ class _LoginPageState extends State<LoginPage> {
       double screenWidth, double screenHeight, BuildContext context) {
     return Center(
       child: Container(
-        width: screenWidth * 0.6,
-        height: screenHeight * 0.06,
+        width: screenWidth < 600 ? screenWidth * 0.6 : screenWidth * 0.5,
+        height: screenHeight * 0.07,
         child: TextButton(
           style: TextButton.styleFrom(
             backgroundColor: Colors.white,
@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Text(
                 "Googleでログイン",
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: screenWidth < 600 ? 16 : 22),
               ),
             ],
           ),
@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
       decoration: new BoxDecoration(
         image: new DecorationImage(
           image: new AssetImage("assets/background.jpg"),
-          fit: BoxFit.fill,
+          fit: BoxFit.cover,
         ),
       ),
     );
