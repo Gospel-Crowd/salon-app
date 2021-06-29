@@ -10,11 +10,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _logInProgress = false;
+  bool _loginInProgress = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _logInProgress == true
+      body: _loginInProgress == true
           ? LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
               backgroundColor: Colors.grey,
@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _tryLoginWithGoogle(BuildContext context) async {
     setState(() {
-      _logInProgress = true;
+      _loginInProgress = true;
     });
 
     bool signInSucessful = false;
