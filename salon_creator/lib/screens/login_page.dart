@@ -10,15 +10,21 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  bool _logInProgress = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildBackgroundImage(),
-          _buildLoginButtons(context),
-        ],
-      ),
+      body: _logInProgress == true
+          ? LinearProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+              backgroundColor: Colors.grey,
+            )
+          : Stack(
+              children: [
+                _buildBackgroundImage(),
+                _buildLoginButtons(context),
+              ],
+            ),
     );
   }
 
@@ -37,7 +43,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildGoogleLoginButton(
-      double screenWidth, double screenHeight, BuildContext context) {
+    double screenWidth,
+    double screenHeight,
+    BuildContext context,
+  ) {
     return Center(
       child: Container(
         width: screenWidth < 600 ? screenWidth * 0.6 : screenWidth * 0.5,
@@ -48,11 +57,7 @@ class _LoginPageState extends State<LoginPage> {
             primary: Colors.black,
           ),
           onPressed: () async {
-            await signInWithGoogle();
-            if (FirebaseAuth.instance.currentUser != null) {
-              addUserToDatabase();
-              Navigator.of(context).pushNamed('/home');
-            }
+            _tryLoginWithGoogle(context);
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -70,6 +75,39 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void _tryLoginWithGoogle(BuildContext context) async {
+    setState(() {
+      _logInProgress = true;
+    });
+
+    bool signInSucessful = false;
+
+    await signInWithGoogle().whenComplete(
+      () => setState(
+        () {
+          signInSucessful = true;
+        },
+      ),
+    );
+
+    if (signInSucessful) {
+      if (FirebaseAuth.instance.currentUser != null) {
+        addUserToDatabase();
+        Navigator.of(context).pushNamed('/home');
+      } else {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              content: Text("ログインに失敗しました\nもう一度お試しください"),
+              actions: [],
+            );
+          },
+        );
+      }
+    }
   }
 
   Widget _buildBackgroundImage() {

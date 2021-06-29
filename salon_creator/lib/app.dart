@@ -31,7 +31,7 @@ class SalonCreatorApp extends StatelessWidget {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection(constants.DBCollection.users)
-          .doc()
+          .doc(snapshot.data.email)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
