@@ -39,15 +39,20 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
         title: Text("登録申請"),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          reverse: true,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: bottomSpace),
-            child: Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.05,
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: SingleChildScrollView(
+            reverse: true,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: bottomSpace),
+              child: Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                ),
+                child: _buildForms(screenHeight, screenWidth),
               ),
-              child: _buildForms(screenHeight, screenWidth),
             ),
           ),
         ),
@@ -56,34 +61,29 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
   }
 
   Widget _buildForms(double screenHeight, double screenWidth) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          _buildDescriptionContainer(screenHeight),
-          const SizedBox(height: 32),
-          _buildFullNameForm(screenWidth, screenHeight),
-          const Divider(height: 32),
-          _buildPhoneNumberForm(screenWidth, screenHeight),
-          const Divider(
-            height: 32,
-          ),
-          _buildContentForm(screenWidth, screenHeight),
-          const Divider(
-            height: 32,
-          ),
-          emptyChecker()
-              ? Container()
-              : Text(
-                  "未記入項目があります",
-                  style: TextStyle(color: Colors.grey),
-                ),
-          _buildSubmitButton(screenWidth, screenHeight),
-        ],
-      ),
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        _buildDescriptionContainer(screenHeight),
+        const SizedBox(height: 32),
+        _buildFullNameForm(screenWidth, screenHeight),
+        const Divider(height: 32),
+        _buildPhoneNumberForm(screenWidth, screenHeight),
+        const Divider(
+          height: 32,
+        ),
+        _buildContentForm(screenWidth, screenHeight),
+        const Divider(
+          height: 32,
+        ),
+        emptyChecker()
+            ? Container()
+            : Text(
+                "未記入項目があります",
+                style: TextStyle(color: Colors.grey),
+              ),
+        _buildSubmitButton(screenWidth, screenHeight),
+      ],
     );
   }
 
@@ -134,8 +134,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
           CustomLabel(
             title: "お申し込みフォーム",
             color: Colors.black,
-            width: screenWidth * 0.35,
-            height: screenHeight * 0.035,
+            width: screenWidth * 0.03,
+            height: screenHeight * 0.03,
           ),
           const SizedBox(
             height: 12,
@@ -190,8 +190,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
           CustomLabel(
             title: "名前",
             color: Colors.black,
-            width: screenWidth * 0.2,
-            height: screenHeight * 0.035,
+            width: screenWidth * 0.03,
+            height: screenHeight * 0.03,
           ),
           const SizedBox(
             height: 12,
@@ -229,8 +229,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
           CustomLabel(
             title: "電話番号",
             color: Colors.black,
-            width: screenWidth * 0.2,
-            height: screenHeight * 0.035,
+            width: screenWidth * 0.03,
+            height: screenHeight * 0.03,
           ),
           const SizedBox(
             height: 12,

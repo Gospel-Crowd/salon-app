@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:salon_creator/color.dart';
 
 class CustomLabel extends StatelessWidget {
   const CustomLabel({Key key, this.title, this.color, this.width, this.height})
@@ -10,22 +11,21 @@ class CustomLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 4,
         ),
-      ),
+        Text(
+          title,
+          style: TextStyle(
+            color: primeColor,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
