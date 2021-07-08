@@ -154,6 +154,7 @@ class _LoginPageState extends State<LoginPage> {
       await method.whenComplete(
         () => setState(
           () {
+            addUserToDatabase();
             _loginInProgress = false;
             signInSucessful = true;
           },
@@ -161,11 +162,6 @@ class _LoginPageState extends State<LoginPage> {
       );
     } on FirebaseAuthException catch (e) {
       print(e.message);
-      setState(
-        () {
-          _loginInProgress = false;
-        },
-      );
     }
 
     if (signInSucessful) {
