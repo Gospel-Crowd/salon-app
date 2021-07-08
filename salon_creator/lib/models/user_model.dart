@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:salon_creator/models/discovery_data.dart';
 import 'package:salon_creator/models/user_setting_model.dart';
 
 class UserModel {
@@ -6,6 +8,7 @@ class UserModel {
   final RoleType role;
   final UserSettings settings;
   final DateTime created;
+  final DiscoveryData discoveryData;
 
   UserModel({
     this.email,
@@ -13,6 +16,7 @@ class UserModel {
     this.role,
     this.settings,
     this.created,
+    this.discoveryData,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +26,7 @@ class UserModel {
       'role': role.index,
       'setting': settings.toMap(),
       'created': created,
+      'discoveryData': discoveryData,
     };
   }
 
@@ -36,8 +41,17 @@ class UserModel {
         email = map['email'],
         name = map['name'],
         role = RoleType.values[map['role']],
-        settings = UserSettings.fromMap(map['setting'].cast<String, dynamic>()),
-        created = map['created'].toDate();
+        settings = map['setting'] != null
+            ? UserSettings.fromMap(map['setting'].cast<String, dynamic>())
+            : null,
+        created = map['created'].toDate(),
+        discoveryData = map['discoveryData'] != null
+            ? DiscoveryData.fromMap(
+                map['discoveryData'].cast<String, dynamic>())
+            : null;
+
+  UserModel.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data());
 }
 
 enum RoleType {

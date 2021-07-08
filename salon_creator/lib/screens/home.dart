@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:salon_creator/authentication/sign_in.dart';
+import 'package:salon_creator/screens/drive_picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -29,7 +30,19 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      body: Container(),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Upload From Drive'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DrivePicker(),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

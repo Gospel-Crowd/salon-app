@@ -37,12 +37,16 @@ class SalonCreatorApp extends StatelessWidget {
         if (!snapshot.hasData) {
           return LinearProgressIndicator();
         }
-
-        if (snapshot.data.exists) {
-          return HomePage();
-        } else {
-          return LoginPage();
-        }
+        FirebaseAuth.instance.authStateChanges().listen(
+          (User user) {
+            if (user != null) {
+              if (snapshot.data.exists) {
+                return HomePage();
+              }
+            }
+          },
+        );
+        return LoginPage();
       },
     );
   }

@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.white,
             primary: Colors.black,
           ),
-          onPressed: () async {
+          onPressed: () {
             _tryLoginWithGoogle(context);
           },
           child: Row(

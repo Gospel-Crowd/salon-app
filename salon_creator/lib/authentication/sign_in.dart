@@ -8,14 +8,18 @@ import 'package:salon_creator/models/user_setting_model.dart';
 
 UserModel currentSignedInUser = UserModel();
 final db = FirebaseFirestore.instance;
+String userAccessToken;
 
 Future<UserCredential> signInWithGoogle() async {
-  final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+  final GoogleSignInAccount googleUser = await GoogleSignIn(
+    scopes: ['https://www.googleapis.com/auth/drive'],
+  ).signIn();
   final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
   final credential = GoogleAuthProvider.credential(
     accessToken: googleAuth.accessToken,
     idToken: googleAuth.idToken,
   );
+  userAccessToken = credential.accessToken;
 
   return await FirebaseAuth.instance.signInWithCredential(credential);
 }
