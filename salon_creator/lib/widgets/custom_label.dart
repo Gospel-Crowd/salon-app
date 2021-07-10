@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:salon_creator/color.dart';
+import 'package:salon_creator/common/color.dart';
 
 class CustomLabel extends StatelessWidget {
   const CustomLabel({Key key, this.title, this.color, this.width, this.height})
@@ -20,7 +20,7 @@ class CustomLabel extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: primeColor,
+            color: primaryColor,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),

@@ -49,7 +49,7 @@ Future<UserCredential> signInWithApple() async {
     nonce: nonce,
   );
 
-  final oauthCredential = OAuthProvider('apple.com').credential(
+  final oauthCredential = OAuthProvider("apple.com").credential(
     idToken: appleCredential.identityToken,
     rawNonce: rawNonce,
   );
@@ -71,12 +71,10 @@ Future addUserToDatabase() async {
     created: DateTime.now().toUtc(),
   );
 
-  if (user == null) {
-    await db
-        .collection(constants.DBCollection.users)
-        .doc(currentSignedInUser.email)
-        .set(currentSignedInUser.toMap());
-  }
+  await db
+      .collection(constants.DBCollection.users)
+      .doc(currentSignedInUser.email)
+      .set(currentSignedInUser.toMap());
 }
 
 Future signOut() async {
