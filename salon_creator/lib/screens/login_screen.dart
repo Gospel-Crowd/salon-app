@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:salon_creator/authentication/sign_in.dart';
-import 'package:salon_creator/color.dart';
+import 'package:salon_creator/common/color.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key key}) : super(key: key);
@@ -16,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primeColor,
+      backgroundColor: primaryColor,
       body: _loginInProgress
           ? LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
@@ -46,9 +46,9 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildGoogleLoginButton(
+          _buildLoginButton(
             context: context,
-            asset: 'assets/signinbutton/google_logo.png',
+            asset: 'assets/signin_button/google_logo.png',
             text: "Googleでログイン",
             method: () async {
               _tryLoginWith(
@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(
             height: 16,
           ),
-          _buildGoogleLoginButton(
+          _buildLoginButton(
             context: context,
             asset: 'assets/signinbutton/apple-logo.png',
             text: "Appleでログイン",
@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildGoogleLoginButton({
+  Widget _buildLoginButton({
     BuildContext context,
     String asset,
     String text,
@@ -117,12 +117,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _roleConfirmation() {
+  void _navigateBasedOnRole() {
     final _auth = FirebaseAuth.instance.currentUser;
     FirebaseFirestore.instance.collection('users').doc(_auth.email).get().then(
       (DocumentSnapshot snapshot) {
         if (snapshot.get(FieldPath(['role'])) == 0) {
-          Navigator.of(context).pushReplacementNamed('/application');
+          Navigator.of(context).pushReplacementNamed('/salon_registration');
         } else if (snapshot.get(FieldPath(['role'])) == 1) {
           FirebaseFirestore.instance
               .collection('salons')
@@ -144,27 +144,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _tryLoginWith(BuildContext context, method) async {
-    final User _auth = FirebaseAuth.instance.currentUser;
-    setState(() {
-      _loginInProgress = true;
-    });
-    bool signInSucessful = false;
-    try {
-      await method.whenComplete(
-        () => setState(
-          () {
-            addUserToDatabase();
-            _loginInProgress = false;
-            signInSucessful = true;
-          },
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      print(e.message);
-    }
-
-    if (signInSucessful) {
+  void _addToDatabase(bool signInSuccessful, User _auth) {
+    if (signInSuccessful) {
       if (_auth != null) {
         FirebaseFirestore.instance
             .collection('users')
@@ -172,24 +153,55 @@ class _LoginPageState extends State<LoginPage> {
             .get()
             .then(
               (DocumentSnapshot snapshot) => {
-                if (!snapshot.exists)
-                  {
-                    addUserToDatabase(),
-                  }
+                addUserToDatabase().onError(
+                  (error, stackTrace) => showDialog(
+                    context: context,
+                    builder: (_) {
+                      return AlertDialog(
+                        content: Text("ログインに失敗しました\nもう一度お試しください"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "戻る",
+                              style: TextStyle(
+                                color: primaryColor,
+                              ),
+                            ),
+                          )
+                        ],
+                      );
+                    },
+                  ),
+                ),
               },
             );
-        _roleConfirmation();
-      } else {
-        showDialog(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              content: Text("ログインに失敗しました\nもう一度お試しください"),
-              actions: [],
-            );
-          },
-        );
       }
     }
+  }
+
+  void _tryLoginWith(BuildContext context, method) async {
+    final User _auth = FirebaseAuth.instance.currentUser;
+    setState(() {
+      _loginInProgress = true;
+    });
+    bool signInSuccessful = false;
+    try {
+      await method.whenComplete(() {
+        _addToDatabase(signInSuccessful, _auth);
+        setState(
+          () {
+            _loginInProgress = false;
+            signInSuccessful = true;
+          },
+        );
+      });
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
+    }
+
+    _navigateBasedOnRole();
   }
 }

@@ -22,3 +22,4 @@ doc/api/
 
 # Google Secrets
 GoogleService-Info.plist
+.DS_Store

@@ -1,31 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:salon_creator/common/email.dart';
-import 'package:salon_creator/widgets/customButton.dart';
-import 'package:salon_creator/widgets/customDialog.dart';
-import 'package:salon_creator/widgets/customLabel.dart';
+import 'package:salon_creator/widgets/custom_button.dart';
+import 'package:salon_creator/widgets/custom_dialog.dart';
+import 'package:salon_creator/widgets/custom_label.dart';
 
-class ApplicationScreen extends StatefulWidget {
-  const ApplicationScreen({Key key}) : super(key: key);
+class SalonRegistrationScreen extends StatefulWidget {
+  const SalonRegistrationScreen({Key key}) : super(key: key);
 
   @override
-  _ApplicationScreenState createState() => _ApplicationScreenState();
+  _SalonRegistrationScreenState createState() =>
+      _SalonRegistrationScreenState();
 }
 
-class _ApplicationScreenState extends State<ApplicationScreen> {
+class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
   final contentController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final phoneNumberController = TextEditingController();
 
-  bool emptyChecker() {
-    if (contentController.text.isEmpty ||
-        firstNameController.text.isEmpty ||
-        lastNameController.text.isEmpty ||
-        phoneNumberController.text.isEmpty) {
-      return false;
-    }
-    return true;
-  }
+  bool _noFieldsEmpty() => !(contentController.text.isEmpty ||
+      firstNameController.text.isEmpty ||
+      lastNameController.text.isEmpty ||
+      phoneNumberController.text.isEmpty);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +72,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
         const Divider(
           height: 32,
         ),
-        emptyChecker()
+        _noFieldsEmpty()
             ? Container()
             : Text(
                 "未記入項目があります",
@@ -92,11 +88,11 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
       text: "送信",
       width: screenWidth * 0.4,
       height: screenHeight * 0.05,
-      function: emptyChecker()
+      function: _noFieldsEmpty()
           ? () async {
               showCustomDialog(
                 content: "内容にお間違えがなければ、\n送信ボタンを押してください\n確認メールを送信します",
-                leftFunction: emptyChecker()
+                leftFunction: _noFieldsEmpty()
                     ? () {
                         sendMail(
                           text: contentController.text,
@@ -271,7 +267,11 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
     );
   }
 
-  Widget _buildNameTextField(TextEditingController controller, lable, width) {
+  Widget _buildNameTextField(
+    TextEditingController controller,
+    String lable,
+    double width,
+  ) {
     return Container(
       width: width,
       height: 32,

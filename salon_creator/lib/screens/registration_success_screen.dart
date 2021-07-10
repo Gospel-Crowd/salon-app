@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:salon_creator/widgets/customButton.dart';
+import 'package:salon_creator/widgets/custom_button.dart';
 
-class Screen extends StatelessWidget {
-  const Screen({Key key}) : super(key: key);
+class RegistrationSuccessScreen extends StatelessWidget {
+  const RegistrationSuccessScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

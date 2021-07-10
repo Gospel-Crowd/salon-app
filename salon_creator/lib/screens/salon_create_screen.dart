@@ -12,7 +12,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("サロン登録"),
+        title: Text("サロン作成"),
       ),
     );
   }
