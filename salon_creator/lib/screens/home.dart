@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> {
         Column(
           children: [
             CircleAvatar(
-              radius: 50,
+              radius: MediaQuery.of(context).size.width * 0.15,
               backgroundImage: AssetImage(
                 'assets/default_profile_image.png',
               ),
