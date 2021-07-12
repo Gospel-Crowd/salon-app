@@ -35,7 +35,7 @@ class SalonCreatorApp extends StatelessWidget {
       primaryColor: primaryColor,
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all(foregroundColor),
+          foregroundColor: MaterialStateProperty.all(primaryColor),
         ),
       ),
       dividerColor: Color.fromRGBO(193, 193, 193, 1),
