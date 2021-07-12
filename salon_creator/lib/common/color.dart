@@ -14,5 +14,3 @@ const Map<int, Color> color = {
 };
 
 const MaterialColor primaryColor = MaterialColor(0xFF00589B, color);
-
-const foregroundColor = Color(0xFFFFA38C);

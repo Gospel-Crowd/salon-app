@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         Container(
           height: MediaQuery.of(context).size.height * 0.27,
-          color: foregroundColor,
+          color: primaryColor,
         ),
         Column(
           children: [
