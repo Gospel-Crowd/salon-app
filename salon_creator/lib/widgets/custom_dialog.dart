@@ -35,7 +35,7 @@ void showCustomDialog({
   );
 }
 
-Container _buildDialogText(content) {
+Widget _buildDialogText(content) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
     child: Text(
@@ -45,7 +45,7 @@ Container _buildDialogText(content) {
   );
 }
 
-Row _buildDialogButtons(
+Widget _buildDialogButtons(
     leftFunction, leftButtonText, rightFunction, rightButtonText) {
   return Row(
     children: [
@@ -55,7 +55,9 @@ Row _buildDialogButtons(
             foregroundColor: MaterialStateProperty.all(Colors.white),
           ),
           onPressed: leftFunction,
-          child: Text(leftButtonText),
+          child: Text(
+            leftButtonText,
+          ),
         ),
       ),
       VerticalDivider(
@@ -65,7 +67,9 @@ Row _buildDialogButtons(
       Expanded(
         child: TextButton(
           onPressed: rightFunction,
-          child: Text(rightButtonText),
+          child: Text(
+            rightButtonText,
+          ),
         ),
       ),
     ],

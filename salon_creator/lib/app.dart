@@ -5,8 +5,8 @@ import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/common/constants.dart' as constants;
 import 'package:salon_creator/screens/home.dart';
 import 'package:salon_creator/screens/login_screen.dart';
-import 'package:salon_creator/screens/salon_create_application_screen.dart';
-import 'package:salon_creator/screens/salon_create_screen.dart';
+import 'package:salon_creator/screens/salon_registration_screen.dart';
+import 'package:salon_creator/screens/salon_creation_screen.dart';
 import 'package:salon_creator/screens/registration_success_screen.dart';
 
 class SalonCreatorApp extends StatelessWidget {
@@ -19,9 +19,9 @@ class SalonCreatorApp extends StatelessWidget {
       routes: {
         '/salon_creation': (context) => SalonCreationScreen(),
         '/home': (context) => HomePage(),
-        '/login': (context) => LoginPage(),
+        '/login': (context) => LoginScreen(),
         '/salon_registration': (context) => SalonRegistrationScreen(),
-        '/screen': (context) => RegistrationSuccessScreen(),
+        '/RegistrationSuccess': (context) => RegistrationSuccessScreen(),
       },
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -29,7 +29,7 @@ class SalonCreatorApp extends StatelessWidget {
           if (snapshot.hasData) {
             return _buildHomePage();
           }
-          return LoginPage();
+          return LoginScreen();
         },
       ),
     );
@@ -82,7 +82,7 @@ class SalonCreatorApp extends StatelessWidget {
             }
           },
         );
-        return LoginPage();
+        return LoginScreen();
       },
     );
   }

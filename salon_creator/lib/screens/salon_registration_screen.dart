@@ -59,17 +59,23 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
   Widget _buildForms(double screenHeight, double screenWidth) {
     return Column(
       children: [
-        const SizedBox(height: 16),
+        SizedBox(
+          height: 16,
+        ),
         _buildDescriptionContainer(screenHeight),
-        const SizedBox(height: 32),
+        SizedBox(
+          height: 32,
+        ),
         _buildFullNameForm(screenWidth, screenHeight),
-        const Divider(height: 32),
+        Divider(
+          height: 32,
+        ),
         _buildPhoneNumberForm(screenWidth, screenHeight),
-        const Divider(
+        Divider(
           height: 32,
         ),
         _buildContentForm(screenWidth, screenHeight),
-        const Divider(
+        Divider(
           height: 32,
         ),
         _noFieldsEmpty()
@@ -78,7 +84,10 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
                 "未記入項目があります",
                 style: TextStyle(color: Colors.grey),
               ),
-        _buildSubmitButton(screenWidth, screenHeight),
+        _buildSubmitButton(
+          screenWidth,
+          screenHeight,
+        ),
       ],
     );
   }
@@ -133,7 +142,7 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
             width: screenWidth * 0.03,
             height: screenHeight * 0.03,
           ),
-          const SizedBox(
+          SizedBox(
             height: 12,
           ),
           _buildContentTextField(),
@@ -175,10 +184,7 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
     );
   }
 
-  Widget _buildFullNameForm(
-    double screenWidth,
-    double screenHeight,
-  ) {
+  Widget _buildFullNameForm(double screenWidth, double screenHeight) {
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +195,7 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
             width: screenWidth * 0.03,
             height: screenHeight * 0.03,
           ),
-          const SizedBox(
+          SizedBox(
             height: 12,
           ),
           Row(
@@ -228,7 +234,7 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
             width: screenWidth * 0.03,
             height: screenHeight * 0.03,
           ),
-          const SizedBox(
+          SizedBox(
             height: 12,
           ),
           _buildPhoneNumberTextField(),
@@ -269,7 +275,7 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
 
   Widget _buildNameTextField(
     TextEditingController controller,
-    String lable,
+    String label,
     double width,
   ) {
     return Container(
@@ -296,7 +302,7 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
               width: 0.5,
             ),
           ),
-          hintText: lable,
+          hintText: label,
         ),
       ),
     );
