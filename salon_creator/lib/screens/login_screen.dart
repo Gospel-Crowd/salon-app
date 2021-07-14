@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:salon_creator/authentication/sign_in.dart';
+import 'package:salon_creator/firebase/sign_in.dart';
 import 'package:salon_creator/common/color.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   bool _loginInProgress = false;
   @override
   Widget build(BuildContext context) {
@@ -57,12 +57,12 @@ class _LoginPageState extends State<LoginPage> {
               );
             },
           ),
-          const SizedBox(
+          SizedBox(
             height: 16,
           ),
           _buildLoginButton(
             context: context,
-            asset: 'assets/signinbutton/apple-logo.png',
+            asset: 'assets/signin_button/apple_logo.png',
             text: "Appleでログイン",
             method: () async {
               _tryLoginWith(
@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                 signInWithApple(),
               );
             },
-          )
+          ),
         ],
       ),
     );
@@ -103,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                 width: 32,
                 height: 32,
               ),
-              const SizedBox(
+              SizedBox(
                 width: 16,
               ),
               Text(
@@ -170,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                                 color: primaryColor,
                               ),
                             ),
-                          )
+                          ),
                         ],
                       );
                     },

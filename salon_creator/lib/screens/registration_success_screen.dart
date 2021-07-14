@@ -21,26 +21,35 @@ class RegistrationSuccessScreen extends StatelessWidget {
           alignment: Alignment.center,
           child: Column(
             children: [
-              Expanded(
-                child: Center(
-                  child: Text(
-                    "ご申請ありがとうございます\n確認のメールの送付が完了しました\nご登録に差し当たり、数日以内に\n担当のものよりご連絡を差し上げますので\nご対応の程よろしくお願い致します",
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              CustomButton(
-                text: "ログイン画面",
-                width: screenWidth * 0.4,
-                height: screenHeight * 0.05,
-                function: () {
-                  Navigator.of(context).pushNamed('/login');
-                },
-              ),
+              _buildCenterTextWidget(),
+              _buildBackToLoginScreenButton(screenWidth, screenHeight, context),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCenterTextWidget() {
+    return Expanded(
+      child: Center(
+        child: Text(
+          "ご申請ありがとうございます\n確認のメールの送付が完了しました\nご登録に差し当たり、数日以内に\n担当のものよりご連絡を差し上げますので\nご対応の程よろしくお願い致します",
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackToLoginScreenButton(
+      double screenWidth, double screenHeight, BuildContext context) {
+    return CustomButton(
+      text: "ログイン画面",
+      width: screenWidth * 0.4,
+      height: screenHeight * 0.05,
+      function: () {
+        Navigator.of(context).pushNamed('/login');
+      },
     );
   }
 }

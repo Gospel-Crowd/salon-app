@@ -1,12 +1,12 @@
 class Salon {
-  String salonName;
+  String name;
   String media;
   String category;
   String description;
   String price;
 
   Salon({
-    this.salonName,
+    this.name,
     this.media,
     this.category,
     this.description,
@@ -15,7 +15,7 @@ class Salon {
 
   Map<String, dynamic> toMap() {
     return {
-      'salonName': this.salonName,
+      'name': this.name,
       'category': this.category,
       'description': this.description,
       'price': this.price,
@@ -24,7 +24,7 @@ class Salon {
   }
 
   Salon.fromMap(Map<String, dynamic> map) {
-    this.salonName = map[this.salonName];
+    this.name = map[this.name];
     this.category = map[this.category];
     this.description = map[this.description];
     this.price = map[this.price];

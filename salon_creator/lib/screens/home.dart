@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:salon_creator/authentication/sign_in.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/common/constants.dart' as constants;
+import 'package:salon_creator/firebase/sign_in.dart';
 import 'package:salon_creator/models/user_model.dart';
 
 class HomePage extends StatefulWidget {
