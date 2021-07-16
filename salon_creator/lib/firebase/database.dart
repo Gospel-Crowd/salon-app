@@ -5,7 +5,7 @@ import 'package:salon_creator/models/salon.dart';
 class DbHandler {
   var salonsRef;
 
-  DbHandler() { 
+  DbHandler() {
     this.salonsRef =
         FirebaseFirestore.instance.collection('salons').withConverter(
               fromFirestore: (snapshot, _) => Salon.fromMap(
