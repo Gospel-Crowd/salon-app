@@ -46,7 +46,11 @@ Widget _buildDialogText(content) {
 }
 
 Widget _buildDialogButtons(
-    leftFunction, leftButtonText, rightFunction, rightButtonText) {
+  leftFunction,
+  leftButtonText,
+  rightFunction,
+  rightButtonText,
+) {
   return Row(
     children: [
       Expanded(

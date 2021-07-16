@@ -21,7 +21,7 @@ class RegistrationSuccessScreen extends StatelessWidget {
           alignment: Alignment.center,
           child: Column(
             children: [
-              _buildCenterTextWidget(),
+              _buildRegistrationSuccessfulText(),
               _buildBackToLoginScreenButton(screenWidth, screenHeight, context),
             ],
           ),
@@ -30,7 +30,7 @@ class RegistrationSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCenterTextWidget() {
+  Widget _buildRegistrationSuccessfulText() {
     return Expanded(
       child: Center(
         child: Text(

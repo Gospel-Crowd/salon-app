@@ -21,7 +21,7 @@ class SalonCreatorApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/login': (context) => LoginScreen(),
         '/salon_registration': (context) => SalonRegistrationScreen(),
-        '/RegistrationSuccess': (context) => RegistrationSuccessScreen(),
+        '/registration_success': (context) => RegistrationSuccessScreen(),
       },
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
