@@ -42,16 +42,22 @@ class _TextFieldWithLabelState extends State<TextFieldWithLabel> {
           SizedBox(
             height: 12,
           ),
-          _buildCustoTextField(
-              widget.controller, widget.keyboardType, widget.hintText),
+          _buildCustomTextField(
+            widget.controller,
+            widget.keyboardType,
+            widget.hintText,
+          ),
         ],
       ),
     );
   }
 }
 
-Widget _buildCustoTextField(TextEditingController controller,
-    TextInputType keyboardType, String hintText) {
+Widget _buildCustomTextField(
+  TextEditingController controller,
+  TextInputType keyboardType,
+  String hintText,
+) {
   return Container(
     height: 32,
     child: TextField(
