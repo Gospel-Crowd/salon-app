@@ -5,9 +5,11 @@ import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/common/constants.dart' as constants;
 import 'package:salon_creator/screens/home.dart';
 import 'package:salon_creator/screens/login_screen.dart';
-import 'package:salon_creator/screens/salon_registration_screen.dart';
-import 'package:salon_creator/screens/salon_creation_screen.dart';
 import 'package:salon_creator/screens/registration_success_screen.dart';
+import 'package:salon_creator/screens/salon_creation_screen.dart';
+import 'package:salon_creator/screens/salon_registration_screen.dart';
+import 'package:salon_creator/screens/user_profile_edit_screen.dart';
+import 'package:salon_creator/screens/user_profile_screen.dart';
 
 class SalonCreatorApp extends StatelessWidget {
   const SalonCreatorApp({Key key}) : super(key: key);
@@ -17,11 +19,13 @@ class SalonCreatorApp extends StatelessWidget {
     return MaterialApp(
       theme: _buildThemeData(),
       routes: {
-        '/salon_creation': (context) => SalonCreationScreen(),
         '/home': (context) => HomePage(),
         '/login': (context) => LoginScreen(),
-        '/salon_registration': (context) => SalonRegistrationScreen(),
         '/registration_success': (context) => RegistrationSuccessScreen(),
+        '/salon_creation': (context) => SalonCreationScreen(),
+        '/salon_registration': (context) => SalonRegistrationScreen(),
+        '/user/profile/get': (context) => UserProfileScreen(),
+        '/user/profile/update': (context) => UserProfileEditScreen(),
       },
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
