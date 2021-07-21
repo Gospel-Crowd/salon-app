@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
     drawerMenuItems.addAll(ListTile.divideTiles(
       context: context,
       tiles: [
-        ListTile(title: Text('プロフィール', style: drawerListItemTextStyle)),
+        _buildProfileTile(drawerListItemTextStyle, context),
         ListTile(title: Text('サロン設定', style: drawerListItemTextStyle)),
         ListTile(title: Text('お問い合わせ', style: drawerListItemTextStyle)),
         ListTile(title: Text('利用規約', style: drawerListItemTextStyle)),
@@ -77,6 +77,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildProfileTile(
+    TextStyle drawerListItemTextStyle,
+    BuildContext context,
+  ) {
+    return ListTile(
+      title: Text('プロフィール', style: drawerListItemTextStyle),
+      onTap: () {
+        Navigator.of(context).pushNamed('/user/profile/get');
+      },
+    );
+  }
+
   Widget _buildProfileImageDisplay(BuildContext context, UserModel userModel) {
     return Stack(
       alignment: AlignmentDirectional.center,
@@ -87,15 +99,20 @@ class _HomePageState extends State<HomePage> {
         ),
         Column(
           children: [
-            CircleAvatar(
-              radius: MediaQuery.of(context).size.width * 0.15,
-              backgroundImage: AssetImage(
-                'assets/default_profile_image.png',
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: CircleAvatar(
+                radius: MediaQuery.of(context).size.width * 0.15,
+                foregroundImage: userModel.profile.imageUrl != null
+                    ? NetworkImage(userModel.profile.imageUrl)
+                    : AssetImage(
+                        'assets/default_profile_image.png',
+                      ),
               ),
             ),
             SizedBox(height: 16),
             Text(
-              userModel.name,
+              userModel.profile.name,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
