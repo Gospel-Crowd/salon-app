@@ -73,6 +73,7 @@ Widget _buildDialogButtons(
           onPressed: rightFunction,
           child: Text(
             rightButtonText,
+            style: TextStyle(color: Colors.white),
           ),
         ),
       ),
