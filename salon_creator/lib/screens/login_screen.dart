@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
 import 'package:salon_creator/common/color.dart';
 
@@ -148,16 +149,27 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _addToDatabase(bool signInSuccessful, User _auth) {
+  void _addToDatabase() {
+    DbHandler dbHandler = DbHandler();
+    bool signInSuccessful = false;
+    User _auth = FirebaseAuth.instance.currentUser;
     if (signInSuccessful) {
       if (_auth != null) {
         FirebaseFirestore.instance
             .collection('users')
             .doc(_auth.email)
             .get()
-            .then(
-              (DocumentSnapshot snapshot) => {
-                addUserToDatabase().onError(
+            .whenComplete(
+          () {
+            setState(
+              () {
+                signInSuccessful = true;
+              },
+            );
+          },
+        ).then(
+          (DocumentSnapshot snapshot) => {
+            dbHandler.addUserToDatabase().onError(
                   (error, stackTrace) => showDialog(
                     context: context,
                     builder: (_) {
@@ -180,25 +192,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                 ),
-              },
-            );
+          },
+        );
       }
     }
   }
 
   void _tryLoginWith(BuildContext context, method) async {
-    final User _auth = FirebaseAuth.instance.currentUser;
     setState(() {
       _loginInProgress = true;
     });
-    bool signInSuccessful = false;
     try {
       await method.whenComplete(() {
-        _addToDatabase(signInSuccessful, _auth);
+        _addToDatabase();
         setState(
           () {
             _loginInProgress = false;
-            signInSuccessful = true;
           },
         );
       });
