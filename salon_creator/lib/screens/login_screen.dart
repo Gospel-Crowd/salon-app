@@ -85,6 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final mq = MediaQuery.of(context).size;
     final screenWidth = mq.width;
     final screenHeight = mq.height;
+    final iconSize = screenWidth * 0.08;
     return Center(
       child: Container(
         width: screenWidth < 600 ? screenWidth * 0.8 : screenWidth * 0.5,
@@ -98,10 +99,13 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                asset,
-                width: 32,
-                height: 32,
+              Container(
+                width: iconSize,
+                height: iconSize,
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: Image.asset(asset),
+                ),
               ),
               SizedBox(
                 width: 16,

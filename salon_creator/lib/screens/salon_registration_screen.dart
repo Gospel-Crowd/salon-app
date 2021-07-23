@@ -21,7 +21,8 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
   bool _noFieldsEmpty() => !(contentController.text.isEmpty ||
       firstNameController.text.isEmpty ||
       lastNameController.text.isEmpty ||
-      phoneNumberController.text.isEmpty);
+      phoneNumberController.text.isEmpty ||
+      phoneNumberController.text.length < 10);
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +111,9 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
                               "${lastNameController.text} ${firstNameController.text}",
                           subject: "ご登録申請ありがとうございます",
                           phoneNumber: phoneNumberController.text,
-                        ).whenComplete(
-                          () => Navigator.of(context)
-                              .pushReplacementNamed('/screen'),
                         );
+                        Navigator.of(context)
+                            .pushReplacementNamed('/registration_success');
                       }
                     : null,
                 leftButtonText: "送信",
