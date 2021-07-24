@@ -42,47 +42,39 @@ class _TextFieldWithLabelState extends State<TextFieldWithLabel> {
           SizedBox(
             height: 12,
           ),
-          _buildCustomTextField(
-            widget.controller,
-            widget.keyboardType,
-            widget.hintText,
-          ),
+          _buildCustomTextField(),
         ],
       ),
     );
   }
-}
 
-Widget _buildCustomTextField(
-  TextEditingController controller,
-  TextInputType keyboardType,
-  String hintText,
-) {
-  return Container(
-    height: 32,
-    child: TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: TextStyle(
-        height: 1,
-        fontSize: 16,
-      ),
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.black,
-            width: 0.5,
-          ),
+  Widget _buildCustomTextField() {
+    return Container(
+      height: 32,
+      child: TextField(
+        controller: widget.controller,
+        keyboardType: widget.keyboardType,
+        style: TextStyle(
+          height: 1,
+          fontSize: 16,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.black,
-            width: 0.5,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.black,
+              width: 0.5,
+            ),
           ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.black,
+              width: 0.5,
+            ),
+          ),
+          hintText: widget.hintText,
         ),
-        hintText: hintText,
       ),
-    ),
-  );
+    );
+  }
 }

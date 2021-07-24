@@ -42,7 +42,10 @@ class RegistrationSuccessScreen extends StatelessWidget {
   }
 
   Widget _buildBackToLoginScreenButton(
-      double screenWidth, double screenHeight, BuildContext context) {
+    double screenWidth,
+    double screenHeight,
+    BuildContext context,
+  ) {
     return CustomButton(
       text: "ログイン画面",
       width: screenWidth * 0.4,
