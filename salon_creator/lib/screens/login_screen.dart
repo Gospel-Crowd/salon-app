@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final mq = MediaQuery.of(context).size;
     final screenWidth = mq.width;
     final screenHeight = mq.height;
-    final iconSize = screenWidth * 0.08;
+
     return Center(
       child: Container(
         width: screenWidth < 600 ? screenWidth * 0.8 : screenWidth * 0.5,
@@ -100,14 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: iconSize,
-                height: iconSize,
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: Image.asset(asset),
-                ),
-              ),
+              _buildLoginMethodLogo(asset),
               SizedBox(
                 width: 16,
               ),
@@ -118,6 +111,18 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Container _buildLoginMethodLogo(String asset) {
+    final iconSize = MediaQuery.of(context).size.width * 0.08;
+    return Container(
+      width: iconSize,
+      height: iconSize,
+      child: FittedBox(
+        fit: BoxFit.cover,
+        child: Image.asset(asset),
       ),
     );
   }
@@ -161,31 +166,35 @@ class _LoginScreenState extends State<LoginScreen> {
           .then(
             (DocumentSnapshot snapshot) => {
               dbHandler.addUserToDatabase().onError(
-                    (error, stackTrace) => showDialog(
-                      context: context,
-                      builder: (_) {
-                        return AlertDialog(
-                          content: Text("ログインに失敗しました\nもう一度お試しください"),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                "戻る",
-                                style: TextStyle(
-                                  color: primaryColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                    (error, stackTrace) => _buildLoginFailedDialog(),
                   ),
             },
           );
     }
+  }
+
+  Future _buildLoginFailedDialog() {
+    return showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          content: Text("ログインに失敗しました\nもう一度お試しください"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                "戻る",
+                style: TextStyle(
+                  color: primaryColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _tryLoginWith(BuildContext context, method) async {
