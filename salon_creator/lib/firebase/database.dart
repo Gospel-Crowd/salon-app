@@ -33,18 +33,18 @@ class DbHandler {
       created: DateTime.now().toUtc(),
     );
 
-    // if (db.collection(constants.DBCollection.users).where(
-    //           'email',
-    //           isEqualTo: currentSignedInUser.email,
-    //         ) ==
-    //     null) {
-    await db
-        .collection(constants.DBCollection.users)
-        .doc(currentSignedInUser.email)
-        .set(
-          currentSignedInUser.toMap(),
-        );
-    // }
+    if (db.collection(constants.DBCollection.users).where(
+              'email',
+              isEqualTo: currentSignedInUser.email,
+            ) ==
+        null) {
+      await db
+          .collection(constants.DBCollection.users)
+          .doc(currentSignedInUser.email)
+          .set(
+            currentSignedInUser.toMap(),
+          );
+    }
   }
 
   addSalon(Salon salon) async {
