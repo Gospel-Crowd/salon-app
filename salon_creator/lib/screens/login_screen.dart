@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
-import 'package:salon_creator/common/color.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key key}) : super(key: key);
@@ -149,52 +149,42 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _addToDatabase() {
+  Future<void> _addToDatabase() async {
     DbHandler dbHandler = DbHandler();
-    bool signInSuccessful = false;
     User _auth = FirebaseAuth.instance.currentUser;
-    if (signInSuccessful) {
-      if (_auth != null) {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(_auth.email)
-            .get()
-            .whenComplete(
-          () {
-            setState(
-              () {
-                signInSuccessful = true;
-              },
-            );
-          },
-        ).then(
-          (DocumentSnapshot snapshot) => {
-            dbHandler.addUserToDatabase().onError(
-                  (error, stackTrace) => showDialog(
-                    context: context,
-                    builder: (_) {
-                      return AlertDialog(
-                        content: Text("ログインに失敗しました\nもう一度お試しください"),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              "戻る",
-                              style: TextStyle(
-                                color: primaryColor,
+
+    if (_auth != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.email)
+          .get()
+          .then(
+            (DocumentSnapshot snapshot) => {
+              dbHandler.addUserToDatabase().onError(
+                    (error, stackTrace) => showDialog(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          content: Text("ログインに失敗しました\nもう一度お試しください"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                "戻る",
+                                style: TextStyle(
+                                  color: primaryColor,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      );
-                    },
+                          ],
+                        );
+                      },
+                    ),
                   ),
-                ),
-          },
-        );
-      }
+            },
+          );
     }
   }
 
@@ -203,8 +193,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _loginInProgress = true;
     });
     try {
-      await method.whenComplete(() {
-        _addToDatabase();
+      await method.whenComplete(() async {
+        await _addToDatabase();
         setState(
           () {
             _loginInProgress = false;
@@ -214,7 +204,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       print(e.message);
     }
-
     _navigateBasedOnRole();
   }
 }

@@ -12,6 +12,14 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed('/home');
+            },
+            child: Text("スキップ"),
+          ),
+        ],
         title: Text("サロン作成"),
       ),
     );
