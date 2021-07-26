@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
+import 'package:salon_creator/models/user_model.dart';
+import 'package:salon_creator/models/user_profile_model.dart';
+import 'package:salon_creator/models/user_setting_model.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key key}) : super(key: key);
@@ -156,20 +159,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _addToDatabase() async {
     DbHandler dbHandler = DbHandler();
-    User _auth = FirebaseAuth.instance.currentUser;
+    final User user = FirebaseAuth.instance.currentUser;
 
-    if (_auth != null) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(_auth.email)
-          .get()
-          .then(
-            (DocumentSnapshot snapshot) => {
-              dbHandler.addUserToDatabase().onError(
-                    (error, stackTrace) => _buildLoginFailedDialog(),
-                  ),
-            },
-          );
+    if (user != null) {
+      assert(!user.isAnonymous);
+      assert(await user.getIdToken() != null);
+
+      if (await dbHandler.getUser(user.email) != null) {
+        return;
+      }
+
+      dbHandler
+          .addUser(UserModel(
+            email: user.email,
+            profile: UserProfileModel(name: user.displayName),
+            role: RoleType.member,
+            settings: UserSettings(pushNotifications: true),
+            created: DateTime.now().toUtc(),
+          ))
+          .onError((error, stackTrace) => _buildLoginFailedDialog());
     }
   }
 

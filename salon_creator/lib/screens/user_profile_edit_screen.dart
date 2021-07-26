@@ -6,7 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/common/color.dart';
-import 'package:salon_creator/constant/constants.dart' as constants;
+import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -26,8 +26,9 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   final ImagePicker imagePicker = ImagePicker();
   TextEditingController nameController;
   TextEditingController aboutMeController;
-  bool _opInProgress = false;
+  DbHandler dbHandler = DbHandler();
 
+  bool _opInProgress = false;
   bool _profileUpdated = false;
   XFile _imageFile;
 
@@ -53,7 +54,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
-          .collection(constants.DBCollection.users)
+          .collection(DbHandler.usersCollection)
           .doc(FirebaseAuth.instance.currentUser.email)
           .snapshots(),
       builder: (context, snapshot) {
@@ -74,8 +75,8 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         : await showDialog(
               context: context,
               builder: (context) => new AlertDialog(
-                title: new Text('変更内容を保存しますか？'),
-                content: new Text('変更内容を保存して、後で編集を続けられるようにしますか'),
+                title: new Text('変更内容を取り消しますか？'),
+                content: new Text('変更内容は全て失われます'),
                 actions: <Widget>[
                   OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(false),
@@ -155,10 +156,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       userModel.profile.imageUrl = await _uploadImageAndGetUrl(_imageFile);
     }
 
-    await FirebaseFirestore.instance
-        .collection(constants.DBCollection.users)
-        .doc(FirebaseAuth.instance.currentUser.email)
-        .update(userModel.toMap());
+    await dbHandler.updateUser(userModel);
 
     setState(() {
       _opInProgress = false;
@@ -201,7 +199,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       onChanged: (_) => _updateScreenContext(userModel),
       decoration: InputDecoration(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: BorderSide(
             color: primaryColor,
             width: 0.5,
@@ -238,7 +236,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       maxLines: 10,
       decoration: InputDecoration(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: BorderSide(
             color: primaryColor,
             width: 0.5,

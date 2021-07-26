@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:salon_creator/common/color.dart';
-import 'package:salon_creator/constant/constants.dart' as constants;
+import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/screens/user_profile_edit_screen.dart';
 
@@ -18,7 +18,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
-          .collection(constants.DBCollection.users)
+          .collection(DbHandler.usersCollection)
           .doc(FirebaseAuth.instance.currentUser.email)
           .snapshots(),
       builder: (context, snapshot) {

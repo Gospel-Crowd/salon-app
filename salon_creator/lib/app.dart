@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:salon_creator/common/color.dart';
-import 'package:salon_creator/common/constants.dart' as constants;
+import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/screens/home.dart';
 import 'package:salon_creator/screens/login_screen.dart';
 import 'package:salon_creator/screens/registration_success_screen.dart';
@@ -67,7 +67,7 @@ class SalonCreatorApp extends StatelessWidget {
   Widget _buildHomePage() {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
-          .collection(constants.DBCollection.users)
+          .collection(DbHandler.usersCollection)
           .doc(FirebaseAuth.instance.currentUser.email)
           .snapshots(),
       builder: (context, snapshot) {
