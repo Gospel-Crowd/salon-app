@@ -2,63 +2,48 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:salon_creator/models/salon.dart';
 import 'package:salon_creator/models/user_model.dart';
-import 'package:salon_creator/models/user_setting_model.dart';
-import 'package:salon_creator/common/constants.dart' as constants;
 
 class DbHandler {
-  var salonsRef;
+  static final String usersCollection = 'users';
+  static final String salonsCollection = 'salons';
+
+  var userCollectionRef;
+  var salonCollectionRef;
 
   DbHandler() {
-    this.salonsRef =
-        FirebaseFirestore.instance.collection('salons').withConverter(
-              fromFirestore: (snapshot, _) => Salon.fromMap(
-                snapshot.data(),
-              ),
-              toFirestore: (salon, _) => salon.toMap(),
-            );
+    userCollectionRef = FirebaseFirestore.instance.collection(usersCollection);
+    salonCollectionRef =
+        FirebaseFirestore.instance.collection(salonsCollection);
   }
 
-  Future addUserToDatabase() async {
-    final db = FirebaseFirestore.instance;
-    final User user = FirebaseAuth.instance.currentUser;
+  Future updateUser(UserModel userModel) async =>
+      await userCollectionRef.doc(userModel.email).update(userModel.toMap());
 
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
+  Future addUser(UserModel userModel) async =>
+      await userCollectionRef.doc(userModel.email).set(userModel.toMap());
 
-    final UserModel currentSignedInUser = UserModel(
-      email: user.email,
-      name: user.displayName,
-      role: RoleType.member,
-      settings: UserSettings(pushNotifications: true),
-      created: DateTime.now().toUtc(),
-    );
+  Future<UserModel> getUser(String email) async {
+    var dbObject = await userCollectionRef.doc(email).get();
 
-    if (db.collection(constants.DBCollection.users).where(
-              'email',
-              isEqualTo: currentSignedInUser.email,
-            ) ==
-        null) {
-      await db
-          .collection(constants.DBCollection.users)
-          .doc(currentSignedInUser.email)
-          .set(
-            currentSignedInUser.toMap(),
-          );
-    }
+    return dbObject != null ? UserModel.fromMap(dbObject.data()) : null;
   }
 
-  addSalon(Salon salon) async {
+  Future addSalon(Salon salon) async {
     try {
-      await salonsRef.add(salon);
+      await salonCollectionRef
+          .withConverter(
+            fromFirestore: (snapshot, _) => Salon.fromMap(snapshot.data()),
+            toFirestore: (salon, _) => salon.toMap(),
+          )
+          .add(salon);
     } on FirebaseException catch (e) {
       print(e.message);
     }
   }
 
-  getSalon(User user) async {
-    final snap = await FirebaseFirestore.instance
-        .collection('salons')
-        .where(['owner'], isEqualTo: user.email).get();
-    return snap.docs.first;
-  }
+  Future getSalon(User user) async => await salonCollectionRef
+      .where(['owner'], isEqualTo: user.email)
+      .get()
+      .docs
+      .first;
 }
