@@ -8,6 +8,7 @@ import 'package:salon_creator/screens/login_screen.dart';
 import 'package:salon_creator/screens/registration_success_screen.dart';
 import 'package:salon_creator/screens/salon_creation_screen.dart';
 import 'package:salon_creator/screens/salon_registration_screen.dart';
+import 'package:salon_creator/screens/terms_screen.dart';
 import 'package:salon_creator/screens/user_profile_edit_screen.dart';
 import 'package:salon_creator/screens/user_profile_screen.dart';
 
@@ -24,6 +25,7 @@ class SalonCreatorApp extends StatelessWidget {
         '/registration_success': (context) => RegistrationSuccessScreen(),
         '/salon_creation': (context) => SalonCreationScreen(),
         '/salon_registration': (context) => SalonRegistrationScreen(),
+        '/terms': (context) => TermsScreen(),
         '/user/profile/get': (context) => UserProfileScreen(),
         '/user/profile/update': (context) => UserProfileEditScreen(),
       },
