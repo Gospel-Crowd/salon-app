@@ -59,8 +59,7 @@ class _HomePageState extends State<HomePage> {
         _buildProfileTile(drawerListItemTextStyle, context),
         ListTile(title: Text('サロン設定', style: drawerListItemTextStyle)),
         ListTile(title: Text('お問い合わせ', style: drawerListItemTextStyle)),
-        ListTile(title: Text('利用規約', style: drawerListItemTextStyle)),
-        ListTile(title: Text('設定', style: drawerListItemTextStyle)),
+        _buildTermsTile(drawerListItemTextStyle, context),
       ],
     ).toList());
 
@@ -74,6 +73,18 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTermsTile(
+    TextStyle drawerListItemTextStyle,
+    BuildContext context,
+  ) {
+    return ListTile(
+      title: Text('利用規約', style: drawerListItemTextStyle),
+      onTap: () {
+        Navigator.of(context).pushNamed('/terms');
+      },
     );
   }
 
