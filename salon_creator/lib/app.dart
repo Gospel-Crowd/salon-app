@@ -32,7 +32,12 @@ class SalonCreatorApp extends StatelessWidget {
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (ctx, snapshot) {
-          if (snapshot.hasData) {
+          final User user = snapshot.data;
+          if (snapshot.hasData &&
+              FirebaseFirestore.instance
+                      .collection(DbHandler.usersCollection)
+                      .doc(user.email) ==
+                  null) {
             return _buildHomePage();
           }
           return LoginScreen();
@@ -76,18 +81,14 @@ class SalonCreatorApp extends StatelessWidget {
         if (!snapshot.hasData) {
           return LinearProgressIndicator();
         }
-        FirebaseAuth.instance.authStateChanges().listen(
-          (User user) {
-            if (user != null) {
-              if (snapshot.data.exists &&
-                  snapshot.data.get(FieldPath(['role'])) == 1) {
-                return HomePage();
-              } else if (snapshot.data.get(FieldPath(['role'])) == 0) {
-                return SalonRegistrationScreen();
-              }
-            }
-          },
-        );
+
+        if (snapshot.data.exists &&
+            snapshot.data.get(FieldPath(['role'])) == 1) {
+          return HomePage();
+        } else if (snapshot.data.get(FieldPath(['role'])) == 0) {
+          return SalonRegistrationScreen();
+        }
+
         return LoginScreen();
       },
     );

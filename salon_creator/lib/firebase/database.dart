@@ -28,18 +28,10 @@ class DbHandler {
     return dbObject != null ? UserModel.fromMap(dbObject.data()) : null;
   }
 
-  Future addSalon(Salon salon) async {
-    try {
-      await salonCollectionRef
-          .withConverter(
-            fromFirestore: (snapshot, _) => Salon.fromMap(snapshot.data()),
-            toFirestore: (salon, _) => salon.toMap(),
-          )
-          .add(salon);
-    } on FirebaseException catch (e) {
-      print(e.message);
-    }
-  }
+  Future addSalon(Salon salon) async => await FirebaseFirestore.instance
+      .collection("salons")
+      .doc()
+      .set(salon.toMap());
 
   Future getSalon(User user) async => await salonCollectionRef
       .where(['owner'], isEqualTo: user.email)
