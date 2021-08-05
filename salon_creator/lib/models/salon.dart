@@ -1,11 +1,13 @@
 class Salon {
+  String owner;
   String name;
-  String media;
+  List media;
   String category;
   String description;
   String price;
 
   Salon({
+    this.owner,
     this.name,
     this.media,
     this.category,
@@ -15,19 +17,21 @@ class Salon {
 
   Map<String, dynamic> toMap() {
     return {
+      'owner': this.owner,
       'name': this.name,
       'category': this.category,
       'description': this.description,
       'price': this.price,
-      'media': this.media,
+      'media': List.castFrom(media),
     };
   }
 
   Salon.fromMap(Map<String, dynamic> map) {
-    this.name = map[this.name];
-    this.category = map[this.category];
-    this.description = map[this.description];
-    this.price = map[this.price];
-    this.media = map[this.media];
+    this.owner = map['owner'];
+    this.name = map['name'];
+    this.category = map['category'];
+    this.description = map['description'];
+    this.price = map['price'];
+    this.media = map['media'];
   }
 }

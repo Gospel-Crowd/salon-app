@@ -31,13 +31,13 @@ class UserModel {
   }
 
   UserModel.fromMap(Map<String, dynamic> map)
-      : assert(map['email'] != null),
-        assert(map['role'] != null),
-        email = map['email'],
+      : email = map['email'],
         role = RoleType.values[map['role']],
-        settings = UserSettings.fromMap(map['setting'].cast<String, dynamic>()),
+        settings = UserSettings.fromMap(map['setting']),
+        // .cast<String, dynamic>()
         created = map['created'].toDate(),
-        profile = UserProfileModel.fromMap(map['profile'].cast<String, dynamic>());
+        profile = UserProfileModel.fromMap(map['profile']);
+  // .cast<String, dynamic>());
 }
 
 enum RoleType {

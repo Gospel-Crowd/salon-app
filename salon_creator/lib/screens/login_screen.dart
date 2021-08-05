@@ -162,12 +162,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final User user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
-
-      if (await dbHandler.getUser(user.email) != null) {
+      if (dbHandler.getUser(user.email) != null) {
         return;
       }
+      assert(!user.isAnonymous);
+      assert(await user.getIdToken() != null);
 
       dbHandler
           .addUser(UserModel(
@@ -206,6 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _tryLoginWith(BuildContext context, method) async {
+    final User user = FirebaseAuth.instance.currentUser;
     setState(() {
       _loginInProgress = true;
     });
