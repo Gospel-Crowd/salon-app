@@ -515,9 +515,15 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     salon.name = salonNameController.text;
     salon.owner = FirebaseAuth.instance.currentUser.email;
     salon.price = priceController.text;
+    salon.media = [];
     if (_imageFiles.isNotEmpty) {
-      salon.media =
-          await storageHandler.uploadMediaFilesAndGetUrls(_imageFiles);
+      for (int i = 0; i < _imageFiles.length; i++) {
+        salon.media.add(
+          await storageHandler.uploadImageAndGetUrl(
+            File(_imageFiles[i].path),
+          ),
+        );
+      }
     }
     await dbHandler.addSalon(salon);
   }
