@@ -1,7 +1,7 @@
 class Salon {
   String owner;
   String name;
-  List media;
+  List<String> media;
   String category;
   String description;
   String price;

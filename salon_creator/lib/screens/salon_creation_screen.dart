@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/common/color.dart';
@@ -10,7 +9,6 @@ import 'package:salon_creator/widgets/custom_button.dart';
 import 'package:salon_creator/widgets/custom_dialog.dart';
 import 'package:salon_creator/widgets/custom_label.dart';
 import 'package:salon_creator/widgets/custom_textfield.dart';
-import 'package:uuid/uuid.dart';
 
 class SalonCreationScreen extends StatefulWidget {
   const SalonCreationScreen({Key key}) : super(key: key);
@@ -20,10 +18,10 @@ class SalonCreationScreen extends StatefulWidget {
 }
 
 class _SalonCreationScreenState extends State<SalonCreationScreen> {
-  bool isFilled = false;
-  bool inProgress = false;
+  bool isFormFilled = false;
+  bool operationInProgress = false;
   final ImagePicker imagePicker = ImagePicker();
-  int index = 0;
+  int _selectedImageIndex = 0;
   List<XFile> _imageFiles = [];
 
   ScrollController _scrollController = ScrollController();
@@ -34,21 +32,13 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
   XFile image;
 
   void _updateScreenContext() {
-    var _hasProfileChanged = salonNameController.text.isNotEmpty &&
-        categoriesController.text.isNotEmpty &&
-        descriptionController.text.isNotEmpty &&
-        priceController.text.isNotEmpty &&
+    var _hasProfileChanged = salonNameController.text.isNotEmpty ||
+        categoriesController.text.isNotEmpty ||
+        descriptionController.text.isNotEmpty ||
+        priceController.text.isNotEmpty ||
         _imageFiles.isNotEmpty;
-    print(salonNameController.text.isNotEmpty);
-
-    print(priceController.text.isNotEmpty);
-    print(descriptionController.text.isNotEmpty);
-    print(categoriesController.text.isNotEmpty);
-    print(_imageFiles.isNotEmpty);
-    print(isFilled);
-
     setState(() {
-      isFilled = _hasProfileChanged;
+      isFormFilled = _hasProfileChanged;
     });
   }
 
@@ -58,46 +48,48 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context).size;
-    final screenWidth = mq.width;
-    final screenHeight = mq.height;
-
     return Scaffold(
-      appBar: inProgress ? null : _buildAppBar(context),
-      body: inProgress
-          ? _buildCreatingProgressScreen()
-          : SafeArea(
-              child: GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                },
-                child: SingleChildScrollView(
-                  child: Container(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 8,
-                        ),
-                        _buildMediaPreviewerDivider(),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        _buildMediaPreviewer(
-                            screenHeight, screenWidth, context),
-                        _buildMediaPane(context),
-                        _buildSalonDetailForms(screenWidth),
-                        isFilled ? Container() : Text("空欄の部分があります"),
-                        _buildSalonSaveButton(screenWidth, screenHeight),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+      appBar: operationInProgress ? null : _buildAppBar(context),
+      body: operationInProgress
+          ? _buildCreateInProgressScreen()
+          : _buildSalonCreationInner(context),
     );
   }
 
-  Center _buildCreatingProgressScreen() {
+  Widget _buildSalonCreationInner(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
+    final screenWidth = mq.width;
+    final screenHeight = mq.height;
+    return SafeArea(
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          child: Container(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 8,
+                ),
+                _buildMediaPreviewerDivider(),
+                SizedBox(
+                  height: 8,
+                ),
+                _buildMediaPreviewer(screenHeight, screenWidth, context),
+                _buildMediaPane(context),
+                _buildSalonDetailForms(screenWidth),
+                isFormFilled ? Container() : Text("空欄の部分があります"),
+                _buildSalonSaveButton(screenWidth, screenHeight),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreateInProgressScreen() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -106,12 +98,20 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
             "作成中です",
             style: TextStyle(
               color: primaryColor,
+              fontSize: 24,
             ),
           ),
           SizedBox(
             height: 16,
           ),
-          CircularProgressIndicator(),
+          Container(
+            width: MediaQuery.of(context).size.width * 0.3,
+            height: MediaQuery.of(context).size.width * 0.3,
+            child: CircularProgressIndicator(
+              color: primaryColor,
+              strokeWidth: 8,
+            ),
+          ),
         ],
       ),
     );
@@ -128,14 +128,14 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
 
   Widget _buildSalonSaveButton(double screenWidth, double screenHeight) {
     return CustomButton(
-      function: isFilled
+      function: isFormFilled
           ? () async {
               setState(() {
-                inProgress = true;
+                operationInProgress = true;
               });
-              await saveSalonDetail().whenComplete(() {
+              await _saveSalonDetail().whenComplete(() {
                 setState(() {
-                  inProgress = false;
+                  operationInProgress = false;
                 });
                 Navigator.of(context).pushReplacementNamed('/home');
               });
@@ -159,14 +159,14 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             _buildMediaPaneAddButton(context),
-            _imageFiles != null ? _buildMediaPaneIconList() : Container(),
+            _imageFiles != null ? _buildMediaPaneThumbnailList() : Container(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMediaPaneIconList() {
+  Widget _buildMediaPaneThumbnailList() {
     return Expanded(
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -178,9 +178,9 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
-                child: _buildMediaPaneIcon(i),
+                child: _buildMediaPaneThumbnail(i),
               ),
-              index == i
+              _selectedImageIndex == i
                   ? Container(
                       width: 80,
                       height: 48,
@@ -197,7 +197,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
-                            index = i;
+                            _selectedImageIndex = i;
                           });
                         },
                       ),
@@ -209,7 +209,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     );
   }
 
-  Widget _buildMediaPaneIcon(int i) {
+  Widget _buildMediaPaneThumbnail(int i) {
     return Stack(
       alignment: Alignment.topRight,
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -245,14 +245,17 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
           color: Colors.white,
         ),
         onPressed: () {
-          showBottomSheet(context);
+          _showBottomSheet(context);
         },
       ),
     );
   }
 
   Widget _buildMediaPreviewer(
-      double screenHeight, double screenWidth, BuildContext context) {
+    double screenHeight,
+    double screenWidth,
+    BuildContext context,
+  ) {
     return Container(
       color: Color.fromRGBO(195, 195, 195, 0.3),
       height: screenWidth * 0.563,
@@ -265,7 +268,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
                 color: primaryColor,
               ),
               onPressed: () {
-                showBottomSheet(context);
+                _showBottomSheet(context);
               },
             )
           : Stack(
@@ -277,7 +280,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
                   fit: BoxFit.cover,
                   image: FileImage(
                     File(
-                      _imageFiles[index].path,
+                      _imageFiles[_selectedImageIndex].path,
                     ),
                   ),
                 ),
@@ -322,8 +325,8 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       leftButtonText: "削除する",
       leftFunction: () {
         setState(() {
-          _imageFiles.removeAt(index);
-          index -= 1;
+          _imageFiles.removeAt(_selectedImageIndex);
+          _selectedImageIndex -= 1;
         });
         Navigator.of(context).pop();
       },
@@ -334,7 +337,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     );
   }
 
-  void showBottomSheet(BuildContext context) async {
+  void _showBottomSheet(BuildContext context) async {
     return await showModalBottomSheet(
       context: context,
       builder: (_) {
@@ -394,6 +397,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
 
   Widget _buildSalonNameForm() {
     return TextFieldWithLabel(
+      maxLines: 1,
       onChanged: (_) => _updateScreenContext(),
       controller: salonNameController,
       title: "サロン名",
@@ -403,6 +407,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
 
   Widget _buildCategoryForm() {
     return TextFieldWithLabel(
+      maxLines: 1,
       onChanged: (_) => _updateScreenContext(),
       controller: categoriesController,
       title: "カテゴリー",
@@ -435,6 +440,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         TextFieldWithLabel(
+          maxLines: 1,
           onChanged: (_) => _updateScreenContext(),
           controller: priceController,
           title: "月額料金",
@@ -500,8 +506,9 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     );
   }
 
-  Future saveSalonDetail() async {
-    final dbHandle = DbHandler();
+  Future _saveSalonDetail() async {
+    final dbHandler = DbHandler();
+    final storageHandler = StorageHandler();
     Salon salon = Salon();
     salon.category = categoriesController.text;
     salon.description = descriptionController.text;
@@ -509,9 +516,10 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     salon.owner = FirebaseAuth.instance.currentUser.email;
     salon.price = priceController.text;
     if (_imageFiles.isNotEmpty) {
-      salon.media = await _uploadImageAndGetUrl();
+      salon.media =
+          await storageHandler.uploadMediaFilesAndGetUrls(_imageFiles);
     }
-    await dbHandle.addSalon(salon);
+    await dbHandler.addSalon(salon);
   }
 
   Future<void> _storeMediaFiles(BuildContext context) async {
@@ -522,27 +530,12 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
 
       setState(() {
         _imageFiles.add(pickedFile);
-        index = _imageFiles.length - 1;
+        _selectedImageIndex = _imageFiles.length - 1;
       });
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToRight());
       _updateScreenContext();
     } catch (e) {
       print(e);
     }
-  }
-
-  Future _uploadImageAndGetUrl() async {
-    var snapshot = FirebaseStorage.instance.ref().child('images');
-    List donwloadUrl = [];
-    for (int i = 0; i < _imageFiles.length; i++) {
-      final url = await snapshot
-          .child('${Uuid().v1()}.png')
-          .putFile(File(_imageFiles[i].path));
-      donwloadUrl.add(
-        await url.ref.getDownloadURL(),
-      );
-    }
-
-    return donwloadUrl;
   }
 }

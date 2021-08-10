@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/models/salon.dart';
 import 'package:salon_creator/models/user_model.dart';
+import 'package:uuid/uuid.dart';
 
 class DbHandler {
   static final String usersCollection = 'users';
@@ -38,4 +43,28 @@ class DbHandler {
       .get()
       .docs
       .first;
+}
+
+class StorageHandler {
+  static final String imageFilePath = "images";
+
+  var imageFileRef;
+
+  StorageHandler() {
+    imageFileRef = FirebaseStorage.instance.ref().child(imageFilePath);
+  }
+
+  Future uploadMediaFilesAndGetUrls(List<XFile> mediaFiles) async {
+    var snapshot = imageFileRef;
+    List<String> donwloadUrl = [];
+    for (int i = 0; i < mediaFiles.length; i++) {
+      final url = await snapshot
+          .child('${Uuid().v1()}.png')
+          .putFile(File(mediaFiles[i].path));
+      donwloadUrl.add(
+        await url.ref.getDownloadURL(),
+      );
+    }
+    return donwloadUrl;
+  }
 }
