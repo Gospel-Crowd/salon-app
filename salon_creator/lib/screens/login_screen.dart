@@ -161,8 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
     DbHandler dbHandler = DbHandler();
     final User user = FirebaseAuth.instance.currentUser;
 
+    //エラー可能性
     if (user != null) {
-      if (dbHandler.getUser(user.email) != null) {
+      if (await dbHandler.getUser(user.email) != null) {
         return;
       }
       assert(!user.isAnonymous);
