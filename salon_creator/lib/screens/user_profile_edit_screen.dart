@@ -134,12 +134,12 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                 }
               : null,
           child: Text('終了'),
-          style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.resolveWith((states) =>
-                states.any((element) => element == MaterialState.disabled)
-                    ? Colors.grey
-                    : primaryColor),
-          ),
+          style: Theme.of(context).textButtonTheme.style.copyWith(
+                foregroundColor: MaterialStateProperty.resolveWith((states) =>
+                    states.any((element) => element == MaterialState.disabled)
+                        ? Colors.grey
+                        : primaryColor),
+              ),
         ),
       ],
     );
@@ -180,11 +180,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         SizedBox(height: 16),
         Text(
           '名前',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: primaryColor,
-          ),
+          style: Theme.of(context).textTheme.headline3,
         ),
         SizedBox(height: 4),
         _buildNameFormField(userModel),
@@ -197,15 +193,6 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
     return TextFormField(
       controller: nameController,
       onChanged: (_) => _updateScreenContext(userModel),
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(
-            color: primaryColor,
-            width: 0.5,
-          ),
-        ),
-      ),
     );
   }
 
@@ -216,11 +203,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         SizedBox(height: 16),
         Text(
           'プロフィール',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: primaryColor,
-          ),
+          style: Theme.of(context).textTheme.headline3,
         ),
         SizedBox(height: 4),
         _buildAboutMeFormField(userModel),
@@ -234,15 +217,6 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       controller: aboutMeController,
       onChanged: (_) => _updateScreenContext(userModel),
       maxLines: 10,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(
-            color: primaryColor,
-            width: 0.5,
-          ),
-        ),
-      ),
     );
   }
 
@@ -253,11 +227,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         SizedBox(height: 8),
         Text(
           'プロフィール写真',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: primaryColor,
-          ),
+          style: Theme.of(context).textTheme.headline3,
         ),
         SizedBox(height: 16),
         Row(

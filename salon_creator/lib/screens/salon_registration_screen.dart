@@ -83,7 +83,9 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
             ? Container()
             : Text(
                 "未記入項目があります",
-                style: TextStyle(color: Colors.grey),
+                style: Theme.of(context).textTheme.bodyText2.copyWith(
+                      color: Colors.grey,
+                    ),
               ),
         _buildSubmitButton(
           screenWidth,
@@ -160,10 +162,6 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
         keyboardType: TextInputType.multiline,
         maxLength: 300,
         maxLines: 100,
-        style: TextStyle(
-          height: 1,
-          fontSize: 16,
-        ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           focusedBorder: OutlineInputBorder(
@@ -249,10 +247,6 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
       child: TextField(
         controller: phoneNumberController,
         keyboardType: TextInputType.phone,
-        style: TextStyle(
-          height: 1,
-          fontSize: 16,
-        ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           focusedBorder: OutlineInputBorder(
@@ -284,10 +278,6 @@ class _SalonRegistrationScreenState extends State<SalonRegistrationScreen> {
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.name,
-        style: TextStyle(
-          height: 1,
-          fontSize: 16,
-        ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           focusedBorder: OutlineInputBorder(

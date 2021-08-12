@@ -5,6 +5,7 @@ import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
 import 'package:salon_creator/models/user_model.dart';
+import 'package:salon_creator/screens/contact_us_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -45,21 +46,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildDrawer(BuildContext context, UserModel userModel) {
-    var drawerListItemTextStyle = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-    );
-
     List<Widget> drawerMenuItems = [
       _buildProfileImageDisplay(context, userModel),
     ];
     drawerMenuItems.addAll(ListTile.divideTiles(
       context: context,
       tiles: [
-        _buildProfileTile(drawerListItemTextStyle, context),
-        ListTile(title: Text('サロン設定', style: drawerListItemTextStyle)),
-        ListTile(title: Text('お問い合わせ', style: drawerListItemTextStyle)),
-        _buildTermsTile(drawerListItemTextStyle, context),
+        _buildProfileTile(context),
+        ListTile(title: Text('サロン設定')),
+        _buildContactUsTile(context, userModel),
+        _buildTermsTile(context),
       ],
     ).toList());
 
@@ -76,24 +72,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTermsTile(
-    TextStyle drawerListItemTextStyle,
-    BuildContext context,
-  ) {
+  Widget _buildContactUsTile(BuildContext context, UserModel userModel) {
     return ListTile(
-      title: Text('利用規約', style: drawerListItemTextStyle),
+      title: Text('お問い合わせ'),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return ContactUsScreen(userModel: userModel);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTermsTile(BuildContext context) {
+    return ListTile(
+      title: Text('利用規約'),
       onTap: () {
         Navigator.of(context).pushNamed('/terms');
       },
     );
   }
 
-  Widget _buildProfileTile(
-    TextStyle drawerListItemTextStyle,
-    BuildContext context,
-  ) {
+  Widget _buildProfileTile(BuildContext context) {
     return ListTile(
-      title: Text('プロフィール', style: drawerListItemTextStyle),
+      title: Text('プロフィール'),
       onTap: () {
         Navigator.of(context).pushNamed('/user/profile/get');
       },
@@ -124,11 +130,9 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height: 16),
             Text(
               userModel.profile.name,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+              style: Theme.of(context).textTheme.headline3.copyWith(
+                    color: Colors.white,
+                  ),
             ),
           ],
         ),
@@ -142,10 +146,7 @@ class _HomePageState extends State<HomePage> {
         await signOut();
         Navigator.of(context).pushNamed('/login');
       },
-      child: Text(
-        "ログアウト",
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      ),
+      child: Text("ログアウト"),
     );
   }
 }

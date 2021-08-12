@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:salon_creator/app.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
@@ -32,11 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   child: Text(
                     "Gospel Crowd",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 32,
-                    ),
+                    style: Theme.of(context).textTheme.headline1,
                   ),
                 ),
                 _buildLoginButtons(context),
@@ -95,10 +92,10 @@ class _LoginScreenState extends State<LoginScreen> {
         width: screenWidth < 600 ? screenWidth * 0.8 : screenWidth * 0.5,
         height: screenHeight * 0.06,
         child: ElevatedButton(
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.white,
-            primary: Colors.black,
-          ),
+          style: Theme.of(context).elevatedButtonTheme.style.copyWith(
+                backgroundColor: MaterialStateProperty.all(Colors.white),
+                foregroundColor: MaterialStateProperty.all(Colors.black),
+              ),
           onPressed: method,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -107,10 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: 16,
               ),
-              Text(
-                text,
-                style: TextStyle(fontSize: screenWidth < 600 ? 16 : 22),
-              ),
+              Text(text),
             ],
           ),
         ),
@@ -192,12 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text(
-                "戻る",
-                style: TextStyle(
-                  color: primaryColor,
-                ),
-              ),
+              child: Text("戻る"),
             ),
           ],
         );
@@ -216,6 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(
           () {
             _loginInProgress = false;
+            userLoggedIn = true;
           },
         );
       });

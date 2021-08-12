@@ -64,9 +64,6 @@ class _TextFieldWithLabelState extends State<TextFieldWithLabel> {
         maxLength: widget.maxLength,
         controller: widget.controller,
         keyboardType: widget.keyboardType,
-        style: TextStyle(
-          fontSize: 16,
-        ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(16, 0, 16, 0),
           focusedBorder: OutlineInputBorder(
