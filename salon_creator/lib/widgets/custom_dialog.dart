@@ -22,6 +22,7 @@ void showCustomDialog({
             Container(
               color: Theme.of(context).primaryColor,
               child: _buildDialogButtons(
+                context,
                 leftFunction,
                 leftButtonText,
                 rightFunction,
@@ -46,6 +47,7 @@ Widget _buildDialogText(content) {
 }
 
 Widget _buildDialogButtons(
+  context,
   leftFunction,
   leftButtonText,
   rightFunction,
@@ -55,9 +57,9 @@ Widget _buildDialogButtons(
     children: [
       Expanded(
         child: TextButton(
-          style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all(Colors.white),
-          ),
+          style: Theme.of(context).textButtonTheme.style.copyWith(
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+              ),
           onPressed: leftFunction,
           child: Text(
             leftButtonText,
@@ -73,7 +75,10 @@ Widget _buildDialogButtons(
           onPressed: rightFunction,
           child: Text(
             rightButtonText,
-            style: TextStyle(color: Colors.white),
+            style: Theme.of(context)
+                .textTheme
+                .bodyText1
+                .copyWith(color: Colors.white),
           ),
         ),
       ),

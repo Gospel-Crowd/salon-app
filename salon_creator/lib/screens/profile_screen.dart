@@ -76,10 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSkipButton() {
     return TextButton(
       onPressed: () {},
-      child: Text(
-        "スキップ",
-        style: TextStyle(color: primaryColor),
-      ),
+      child: Text("スキップ"),
     );
   }
 
@@ -106,10 +103,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       textAlignVertical: TextAlignVertical.center,
       keyboardType: TextInputType.multiline,
       maxLines: 100,
-      style: TextStyle(
-        height: 1,
-        fontSize: 16,
-      ),
       decoration: InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
         focusedBorder: OutlineInputBorder(

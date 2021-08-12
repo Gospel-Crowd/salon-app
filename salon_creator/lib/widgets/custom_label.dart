@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:salon_creator/common/color.dart';
 
 class CustomLabel extends StatelessWidget {
   const CustomLabel({Key key, this.title, this.color, this.width, this.height})
@@ -14,17 +13,8 @@ class CustomLabel extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: 4,
-        ),
-        Text(
-          title,
-          style: TextStyle(
-            color: primaryColor,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        SizedBox(width: 4),
+        Text(title, style: Theme.of(context).textTheme.headline3),
       ],
     );
   }

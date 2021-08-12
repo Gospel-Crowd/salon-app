@@ -20,9 +20,6 @@ class _CustomButtonState extends State<CustomButton> {
       width: widget.width,
       height: widget.height,
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          primary: Theme.of(context).primaryColor,
-        ),
         child: Text(widget.text),
         onPressed: widget.function,
       ),

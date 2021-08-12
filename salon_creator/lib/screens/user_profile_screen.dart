@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/screens/user_profile_edit_screen.dart';
@@ -69,7 +68,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       Text(
         userModel.profile.name,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        style: Theme.of(context).textTheme.headline3.copyWith(
+              color: Colors.black,
+            ),
       ),
     ];
     profileItems.addAll(ListTile.divideTiles(
@@ -96,16 +97,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         SizedBox(height: 8),
         Text(
           'プロフィール',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: primaryColor,
-          ),
+          style: Theme.of(context).textTheme.headline3,
         ),
         SizedBox(height: 4),
         Text(
           userModel.profile.aboutMeText ?? 'Write something about yourself!',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
         ),
         SizedBox(height: 8),
       ],
@@ -119,17 +115,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         SizedBox(height: 8),
         Text(
           'メールアドレス',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: primaryColor,
-          ),
+          style: Theme.of(context).textTheme.headline3,
         ),
         SizedBox(height: 4),
-        Text(
-          userModel.email,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-        ),
+        Text(userModel.email),
         SizedBox(height: 8),
       ],
     );
@@ -142,17 +131,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         SizedBox(height: 8),
         Text(
           '名前',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: primaryColor,
-          ),
+          style: Theme.of(context).textTheme.headline3,
         ),
         SizedBox(height: 4),
-        Text(
-          userModel.profile.name,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-        ),
+        Text(userModel.profile.name),
         SizedBox(height: 8),
       ],
     );
