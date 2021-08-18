@@ -49,7 +49,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'サロンやアプリに関するご要望、ご感想などがあればこちらのお問い合わせフォームでご記入ください。',
+                          'サロンやアプリに関するご要望、ご感想などがあればこちらのお問い合わせフォームにご記入ください。',
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -73,7 +73,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
-              'フィードバックありがとうございました\nこれは私たちのサービスを改善するのに役立ちます',
+              'フィードバックありがとうございました\n頂いた情報を元にサービス内容の改善をいたします',
               textAlign: TextAlign.center,
             ),
           ),
