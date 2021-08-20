@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
-import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
 import 'package:salon_creator/screens/home.dart';
 import 'package:salon_creator/screens/login_screen.dart';
@@ -83,6 +82,10 @@ class SalonCreatorApp extends StatelessWidget {
           displayColor: Colors.black,
         ),
       ),
+      tabBarTheme: defaultThemeData.tabBarTheme.copyWith(
+        labelColor: primaryColor,
+        unselectedLabelColor: primaryColor,
+      ),
     );
   }
 
@@ -100,6 +103,10 @@ class SalonCreatorApp extends StatelessWidget {
             ),
             button: TextStyle(
               fontSize: 18,
+            ),
+            headline5: TextStyle(
+              color: primaryColor,
+              fontSize: 10,
             ),
           )
           .apply(
