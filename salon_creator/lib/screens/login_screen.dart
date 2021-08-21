@@ -195,7 +195,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _tryLoginWith(BuildContext context, method) async {
-    final User user = FirebaseAuth.instance.currentUser;
     setState(() {
       _loginInProgress = true;
     });
