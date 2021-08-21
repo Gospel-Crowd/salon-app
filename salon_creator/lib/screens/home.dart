@@ -6,6 +6,8 @@ import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
+import 'package:salon_creator/screens/lesson_list_screen.dart';
+import 'package:salon_creator/screens/member_list_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -15,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -35,13 +38,102 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHomePageInternal(BuildContext context, UserModel userModel) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: Text('ホーム'),
         iconTheme: IconThemeData(color: Colors.black),
       ),
       drawer: _buildDrawer(context, userModel),
-      body: Container(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildScreenSelection(screenWidth),
+            selectedIndex == 0 ? LessonListScreen() : MemberListScreen(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScreenSelection(double screenWidth) {
+    return Container(
+      margin: EdgeInsets.only(
+        top: screenWidth * 0.02,
+        bottom: screenWidth * 0.02,
+        left: screenWidth * 0.02,
+        right: screenWidth * 0.02,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildLessonListScreen(),
+          const SizedBox(
+            width: 8,
+          ),
+          _buildMemberListScreen(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMemberListScreen() {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedIndex = 1;
+          });
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 40,
+          decoration: BoxDecoration(
+            color: selectedIndex == 1
+                ? primaryColor
+                : Color.fromRGBO(240, 240, 240, 1),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Text(
+            "メンバー",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: selectedIndex == 1 ? Colors.white : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLessonListScreen() {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedIndex = 0;
+          });
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 40,
+          decoration: BoxDecoration(
+            color: selectedIndex == 0
+                ? primaryColor
+                : Color.fromRGBO(240, 240, 240, 1),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Text(
+            "レッスン",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: selectedIndex == 0 ? Colors.white : null,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
