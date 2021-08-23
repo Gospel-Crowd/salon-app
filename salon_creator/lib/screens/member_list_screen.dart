@@ -19,8 +19,7 @@ class _MemberListScreenState extends State<MemberListScreen> {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection(DbHandler.usersCollection)
-          .where("salons",
-              arrayContains: FirebaseAuth.instance.currentUser.email)
+          .where("salons", arrayContains: "XytREh97Xs9pJvnI13JS")
           .snapshots(),
       builder: (BuildContext context, snapshot) {
         if (!snapshot.hasData) {
@@ -60,7 +59,7 @@ class _MemberListScreenState extends State<MemberListScreen> {
           child: Container(
             child: Column(
               children: [
-                _buildMemberIcon(e),
+                _buildMemberIcon(userModel),
                 SizedBox(height: 4),
                 Text(
                   userModel.profile.name,
@@ -89,10 +88,10 @@ class _MemberListScreenState extends State<MemberListScreen> {
     );
   }
 
-  Widget _buildMemberIcon(QueryDocumentSnapshot<Map<String, dynamic>> e) {
+  Widget _buildMemberIcon(UserModel userModel) {
     return CircleAvatar(
-      foregroundImage: e.data()['profile']['imageUrl'] != null
-          ? NetworkImage(e.data()['profile']['imageUrl'])
+      foregroundImage: userModel.profile.imageUrl != null
+          ? NetworkImage(userModel.profile.imageUrl)
           : AssetImage(
               'assets/default_profile_image.png',
             ),

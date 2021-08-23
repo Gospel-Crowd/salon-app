@@ -6,8 +6,8 @@ import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
-import 'package:salon_creator/screens/member_list_screen.dart';
 import 'package:salon_creator/screens/lesson_list_screen.dart';
+import 'package:salon_creator/screens/member_list_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
