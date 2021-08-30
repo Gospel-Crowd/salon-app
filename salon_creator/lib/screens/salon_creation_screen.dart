@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
+import 'package:salon_creator/models/creator_model.dart';
 import 'package:salon_creator/models/salon.dart';
 import 'package:salon_creator/widgets/custom_button.dart';
 import 'package:salon_creator/widgets/custom_dialog.dart';
@@ -11,7 +12,9 @@ import 'package:salon_creator/widgets/custom_label.dart';
 import 'package:salon_creator/widgets/custom_textfield.dart';
 
 class SalonCreationScreen extends StatefulWidget {
-  const SalonCreationScreen({Key key}) : super(key: key);
+  const SalonCreationScreen({Key key, this.userModel}) : super(key: key);
+
+  final CreatorModel userModel;
 
   @override
   _SalonCreationScreenState createState() => _SalonCreationScreenState();
@@ -60,6 +63,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     final mq = MediaQuery.of(context).size;
     final screenWidth = mq.width;
     final screenHeight = mq.height;
+
     return SafeArea(
       child: GestureDetector(
         onTap: () {
@@ -69,13 +73,9 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
           child: Container(
             child: Column(
               children: [
-                SizedBox(
-                  height: 8,
-                ),
+                SizedBox(height: 8),
                 _buildMediaPreviewerDivider(),
-                SizedBox(
-                  height: 8,
-                ),
+                SizedBox(height: 8),
                 _buildMediaPreviewer(screenHeight, screenWidth, context),
                 _buildMediaPane(context),
                 _buildSalonDetailForms(screenWidth),
@@ -94,16 +94,8 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            "作成中です",
-            style: TextStyle(
-              color: primaryColor,
-              fontSize: 24,
-            ),
-          ),
-          SizedBox(
-            height: 16,
-          ),
+          Text("作成中です", style: Theme.of(context).textTheme.headline2),
+          SizedBox(height: 16),
           Container(
             width: MediaQuery.of(context).size.width * 0.3,
             height: MediaQuery.of(context).size.width * 0.3,
@@ -185,10 +177,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
                       width: 80,
                       height: 48,
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: primaryColor,
-                          width: 3,
-                        ),
+                        border: Border.all(color: primaryColor, width: 3),
                       ),
                     )
                   : Container(
@@ -219,9 +208,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
           width: 80,
           height: 45,
           image: FileImage(
-            File(
-              _imageFiles[i].path,
-            ),
+            File(_imageFiles[i].path),
           ),
         ),
       ],
@@ -232,18 +219,11 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     return Container(
       decoration: BoxDecoration(
         color: primaryColor,
-        border: Border.all(
-          color: primaryColor,
-          width: 2,
-        ),
+        border: Border.all(color: primaryColor, width: 2),
       ),
       child: IconButton(
         alignment: Alignment.center,
-        icon: Icon(
-          Icons.add_circle,
-          size: 28,
-          color: Colors.white,
-        ),
+        icon: Icon(Icons.add_circle, size: 28, color: Colors.white),
         onPressed: () {
           _showBottomSheet(context);
         },
@@ -262,11 +242,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       width: screenWidth,
       child: _imageFiles.isEmpty
           ? TextButton(
-              child: Icon(
-                Icons.add_circle,
-                size: 64,
-                color: primaryColor,
-              ),
+              child: Icon(Icons.add_circle, size: 64, color: primaryColor),
               onPressed: () {
                 _showBottomSheet(context);
               },
@@ -279,9 +255,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
                   width: screenWidth,
                   fit: BoxFit.cover,
                   image: FileImage(
-                    File(
-                      _imageFiles[_selectedImageIndex].path,
-                    ),
+                    File(_imageFiles[_selectedImageIndex].path),
                   ),
                 ),
                 _buildDeleteButton(context),
@@ -295,18 +269,12 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       width: 40,
       height: 40,
       margin: EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: primaryColor,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: primaryColor, shape: BoxShape.circle),
       child: IconButton(
         onPressed: () {
           _buildDeleteConfirmationDialog(context);
         },
-        icon: Icon(
-          Icons.close,
-          color: Colors.white,
-        ),
+        icon: Icon(Icons.close, color: Colors.white),
       ),
     );
   }
@@ -525,7 +493,11 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
         );
       }
     }
-    await dbHandler.addSalon(salon);
+
+    var salonId = await dbHandler.addSalon(salon);
+    widget.userModel.salonId = salonId;
+
+    await dbHandler.updateUser(widget.userModel);
   }
 
   Future<void> _storeMediaFiles(BuildContext context) async {

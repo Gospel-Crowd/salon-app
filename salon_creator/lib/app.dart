@@ -19,43 +19,42 @@ class SalonCreatorApp extends StatelessWidget {
   const SalonCreatorApp({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: _buildThemeData(context),
-      routes: {
-        '/contact_us': (context) => ContactUsScreen(),
-        '/home': (context) => HomePage(),
-        '/login': (context) => LoginScreen(),
-        '/registration_success': (context) => RegistrationSuccessScreen(),
-        '/salon_creation': (context) => SalonCreationScreen(),
-        '/salon_registration': (context) => SalonRegistrationScreen(),
-        '/terms': (context) => TermsScreen(),
-        '/user/profile/get': (context) => UserProfileScreen(),
-        '/user/profile/update': (context) => UserProfileEditScreen(),
-      },
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (ctx, snapshot) {
-          final User user = snapshot.data;
-          if (snapshot.hasData &&
-              FirebaseFirestore.instance
-                      .collection(DbHandler.usersCollection)
-                      .doc(user.email) ==
-                  null) {
-            return _buildHomePage();
-          }
-          return LoginScreen();
+  Widget build(BuildContext context) => MaterialApp(
+        theme: _buildThemeData(context),
+        routes: {
+          '/contact_us': (context) => ContactUsScreen(),
+          '/home': (context) => HomePage(),
+          '/login': (context) => LoginScreen(),
+          '/registration_success': (context) => RegistrationSuccessScreen(),
+          '/salon_creation': (context) => SalonCreationScreen(),
+          '/salon_registration': (context) => SalonRegistrationScreen(),
+          '/terms': (context) => TermsScreen(),
+          '/user/profile/get': (context) => UserProfileScreen(),
+          '/user/profile/update': (context) => UserProfileEditScreen(),
         },
-      ),
-    );
-  }
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (ctx, snapshot) {
+            final User user = snapshot.data;
+            if (snapshot.hasData &&
+                FirebaseFirestore.instance
+                        .collection(DbHandler.usersCollection)
+                        .doc(user.email) ==
+                    null) {
+              return _buildHomePage();
+            }
+            return LoginScreen();
+          },
+        ),
+      );
 
   ThemeData _buildThemeData(BuildContext context) {
     var defaultThemeData = Theme.of(context);
+    var textTheme = _buildTextTheme(defaultThemeData);
 
     return defaultThemeData.copyWith(
       primaryColor: primaryColor,
-      textTheme: _buildTextTheme(defaultThemeData),
+      textTheme: textTheme,
       inputDecorationTheme: defaultThemeData.inputDecorationTheme.copyWith(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -74,18 +73,28 @@ class SalonCreatorApp extends StatelessWidget {
         ),
       ),
       dividerColor: Color.fromRGBO(193, 193, 193, 1),
-      appBarTheme: defaultThemeData.appBarTheme.copyWith(
-        shadowColor: Colors.transparent,
-        color: Colors.white,
-        foregroundColor: Colors.black,
-        textTheme: defaultThemeData.textTheme.apply(
-          displayColor: Colors.black,
-        ),
+      appBarTheme: _buildAppBarTheme(defaultThemeData),
+      tabBarTheme: _buildTabTheme(defaultThemeData, textTheme),
+    );
+  }
+
+  AppBarTheme _buildAppBarTheme(ThemeData defaultThemeData) {
+    return defaultThemeData.appBarTheme.copyWith(
+      shadowColor: Colors.transparent,
+      color: Colors.white,
+      foregroundColor: Colors.black,
+      textTheme: defaultThemeData.textTheme.apply(
+        displayColor: Colors.black,
       ),
-      tabBarTheme: defaultThemeData.tabBarTheme.copyWith(
-        labelColor: primaryColor,
-        unselectedLabelColor: primaryColor,
-      ),
+    );
+  }
+
+  TabBarTheme _buildTabTheme(ThemeData defaultThemeData, TextTheme textTheme) {
+    return defaultThemeData.tabBarTheme.copyWith(
+      labelColor: primaryColor,
+      unselectedLabelColor: primaryColor,
+      labelStyle: textTheme.headline4,
+      unselectedLabelStyle: textTheme.headline4,
     );
   }
 
@@ -94,12 +103,19 @@ class SalonCreatorApp extends StatelessWidget {
           .copyWith(
             headline1: TextStyle(
               fontSize: 32,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
+            ),
+            headline2: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
             ),
             headline3: TextStyle(
               color: primaryColor,
               fontSize: 20,
               fontWeight: FontWeight.w700,
+            ),
+            headline4: TextStyle(
+              fontSize: 16,
             ),
             button: TextStyle(
               fontSize: 18,
@@ -114,26 +130,24 @@ class SalonCreatorApp extends StatelessWidget {
             fontSizeDelta: 2,
           );
 
-  Widget _buildHomePage() {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection(DbHandler.usersCollection)
-          .doc(FirebaseAuth.instance.currentUser.email)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return LinearProgressIndicator();
-        }
+  Widget _buildHomePage() => StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection(DbHandler.usersCollection)
+            .doc(FirebaseAuth.instance.currentUser.email)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return LinearProgressIndicator();
+          }
 
-        if (snapshot.data.exists &&
-            snapshot.data.get(FieldPath(['role'])) == 1) {
-          return HomePage();
-        } else if (snapshot.data.get(FieldPath(['role'])) == 0) {
-          return SalonRegistrationScreen();
-        }
+          if (snapshot.data.exists &&
+              snapshot.data.get(FieldPath(['role'])) == 1) {
+            return HomePage();
+          } else if (snapshot.data.get(FieldPath(['role'])) == 0) {
+            return SalonRegistrationScreen();
+          }
 
-        return LoginScreen();
-      },
-    );
-  }
+          return LoginScreen();
+        },
+      );
 }

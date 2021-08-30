@@ -5,6 +5,7 @@ import 'package:salon_creator/app.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
+import 'package:salon_creator/models/member_model.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/models/user_profile_model.dart';
 import 'package:salon_creator/models/user_setting_model.dart';
@@ -18,6 +19,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _loginInProgress = false;
+  DbHandler dbHandler = DbHandler();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,54 +127,45 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _navigateBasedOnRole() {
-    final _auth = FirebaseAuth.instance.currentUser;
-    FirebaseFirestore.instance.collection('users').doc(_auth.email).get().then(
-      (DocumentSnapshot snapshot) {
-        if (snapshot.get(FieldPath(['role'])) == 0) {
-          Navigator.of(context).pushReplacementNamed('/salon_registration');
-        } else if (snapshot.get(FieldPath(['role'])) == 1) {
-          FirebaseFirestore.instance
-              .collection('salons')
-              .where('owner', isEqualTo: _auth.email)
-              .get()
-              .then(
-            (QuerySnapshot snapshot) {
-              print(snapshot.docs.isNotEmpty);
-              print(snapshot.docs.isEmpty);
-              if (snapshot.docs.isNotEmpty) {
-                Navigator.of(context).pushReplacementNamed('/home');
-              } else {
-                Navigator.of(context).pushReplacementNamed('/salon_creation');
-              }
-            },
-          );
-        }
-      },
-    );
+  void _navigateBasedOnRole(UserModel userModel) {
+    if (userModel.role == RoleType.member) {
+      Navigator.of(context).pushReplacementNamed('/salon_registration');
+    } else if (userModel.role == RoleType.creator) {
+      FirebaseFirestore.instance
+          .collection('salons')
+          .where('owner', isEqualTo: userModel.email)
+          .get()
+          .then(
+        (QuerySnapshot snapshot) {
+          if (snapshot.docs.isNotEmpty) {
+            Navigator.of(context).pushReplacementNamed('/home');
+          } else {
+            Navigator.of(context).pushReplacementNamed('/salon_creation');
+          }
+        },
+      );
+    }
   }
 
-  Future<void> _addToDatabase() async {
-    DbHandler dbHandler = DbHandler();
+  Future<UserModel> _addToDatabase() async {
     final User user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      if (await dbHandler.getUser(user.email) != null) {
-        return;
-      }
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
 
-      dbHandler
-          .addUser(UserModel(
-            email: user.email,
-            profile: UserProfileModel(name: user.displayName),
-            role: RoleType.member,
-            settings: UserSettings(pushNotifications: true),
-            created: DateTime.now().toUtc(),
-          ))
-          .onError((error, stackTrace) => _buildLoginFailedDialog());
-    }
+    var userModel = MemberModel(
+      email: user.email,
+      profile: UserProfileModel(name: user.displayName),
+      settings: UserSettings(pushNotifications: true),
+      created: DateTime.now().toUtc(),
+      salons: [],
+    );
+
+    await dbHandler
+        .addUser(userModel)
+        .onError((error, stackTrace) => _buildLoginFailedDialog());
+
+    return userModel;
   }
 
   Future _buildLoginFailedDialog() {
@@ -197,19 +191,28 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _loginInProgress = true;
     });
+
     try {
       await method.whenComplete(() async {
-        await _addToDatabase();
-        setState(
-          () {
-            _loginInProgress = false;
-            userLoggedIn = true;
-          },
-        );
+        var userModel =
+            await dbHandler.getUser(FirebaseAuth.instance.currentUser.email);
+
+        if (userModel == null) {
+          userModel = await _addToDatabase();
+        }
+
+        setState(() {
+          userLoggedIn = true;
+        });
+
+        _navigateBasedOnRole(userModel);
       });
     } on FirebaseAuthException catch (e) {
       print(e.message);
+    } finally {
+      setState(() {
+        _loginInProgress = false;
+      });
     }
-    _navigateBasedOnRole();
   }
 }
