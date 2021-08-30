@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:salon_creator/models/salon.dart';
 import 'package:salon_creator/models/user_model.dart';
@@ -28,19 +27,13 @@ class DbHandler {
   Future<UserModel> getUser(String email) async {
     var dbObject = await userCollectionRef.doc(email).get();
 
-    return dbObject != null ? UserModel.fromMap(dbObject.data()) : null;
+    return dbObject.data() != null ? UserModel.fromMap(dbObject.data()) : null;
   }
 
-  Future addSalon(Salon salon) async => await FirebaseFirestore.instance
-      .collection("salons")
-      .doc()
-      .set(salon.toMap());
-
-  Future getSalon(User user) async => await salonCollectionRef
-      .where(['owner'], isEqualTo: user.email)
-      .get()
-      .docs
-      .first;
+  Future<String> addSalon(Salon salon) => FirebaseFirestore.instance
+      .collection(salonsCollection)
+      .add(salon.toMap())
+      .then((value) => value.id);
 }
 
 class StorageHandler {

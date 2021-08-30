@@ -5,16 +5,15 @@ class UserModel {
   final String email;
   final RoleType role;
   final UserSettings settings;
-  final DateTime created;
   final UserProfileModel profile;
-  List<String> salons;
+  DateTime created;
 
   UserModel({
     this.email,
     this.role,
     this.settings,
-    this.created,
     this.profile,
+    this.created,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,7 +23,6 @@ class UserModel {
       'setting': settings.toMap(),
       'created': created,
       'profile': profile.toMap(),
-      'salons': List.castFrom(salons),
     };
   }
 
@@ -39,8 +37,7 @@ class UserModel {
         settings = UserSettings.fromMap(map['setting'].cast<String, dynamic>()),
         created = map['created'].toDate(),
         profile =
-            UserProfileModel.fromMap(map['profile'].cast<String, dynamic>()),
-        salons = map['salons'].cast<String>() as List<String>;
+            UserProfileModel.fromMap(map['profile'].cast<String, dynamic>());
 }
 
 enum RoleType {

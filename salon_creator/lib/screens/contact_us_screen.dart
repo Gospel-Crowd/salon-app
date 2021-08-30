@@ -1,6 +1,6 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:salon_creator/common/color.dart';
+import 'package:salon_creator/common/email.dart';
 import 'package:salon_creator/models/user_model.dart';
 
 class ContactUsScreen extends StatefulWidget {
@@ -90,14 +90,11 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                     _submitInProgress = true;
                   });
 
-                  await FirebaseFunctions.instance
-                      .httpsCallable('sendFeedbackMailToGospelCrowd')
-                      .call({
-                    'mail': widget.userModel.email,
-                    'name': widget.userModel.profile.name,
-                    'category': _selectedCategory,
-                    'content': questionController.text,
-                  });
+                  await sendFeedbackMail(
+                    name: widget.userModel.profile.name,
+                    category: _selectedCategory,
+                    content: questionController.text,
+                  );
 
                   setState(() {
                     _submitInProgress = false;

@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
+import 'package:salon_creator/models/creator_model.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
 import 'package:salon_creator/screens/lesson_list_screen.dart';
 import 'package:salon_creator/screens/member_list_screen.dart';
+import 'package:salon_creator/screens/salon_creation_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -30,46 +32,75 @@ class _HomePageState extends State<HomePage> {
           return LinearProgressIndicator();
         }
 
-        var userModel = UserModel.fromMap(snapshot.data.data());
+        var creatorModel = CreatorModel.fromMap(snapshot.data.data());
 
-        return DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text('ホーム'),
-              iconTheme: IconThemeData(color: Colors.black),
-              bottom: TabBar(
-                tabs: [
-                  Tab(text: "レッスン"),
-                  Tab(
-                    text: "メンバー",
-                  )
-                ],
-              ),
-            ),
-            drawer: _buildDrawer(context, userModel),
-            body: _buildHomePageInternal(context, userModel),
-          ),
-        );
+        return _buildHomePageInternal(context, creatorModel);
       },
     );
   }
 
-  Widget _buildHomePageInternal(BuildContext context, UserModel userModel) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(top: 16),
-          child: TabBarView(
-            children: [
-              LessonListScreen(),
-              MemberListScreen(),
-            ],
-          ),
+  Widget _buildHomePageInternal(BuildContext context, CreatorModel userModel) =>
+      userModel.salonId == null
+          ? Scaffold(
+              appBar: AppBar(
+                title: Text('ホーム'),
+                iconTheme: IconThemeData(color: Colors.black),
+              ),
+              drawer: _buildDrawer(context, userModel),
+              body: _buildSalonNotYetCreatedView(context, userModel),
+            )
+          : DefaultTabController(
+              length: 2,
+              child: Scaffold(
+                appBar: AppBar(
+                  bottom: TabBar(
+                    tabs: [
+                      Tab(text: 'レッスン'),
+                      Tab(text: 'メンバー'),
+                    ],
+                  ),
+                  title: Text('ホーム'),
+                  iconTheme: IconThemeData(color: Colors.black),
+                ),
+                drawer: _buildDrawer(context, userModel),
+                body: TabBarView(
+                  children: [
+                    LessonListScreen(),
+                    MemberListScreen(),
+                  ],
+                ),
+              ),
+            );
+
+  Widget _buildSalonNotYetCreatedView(
+    BuildContext context,
+    UserModel userModel,
+  ) =>
+      Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'サロンがまだありません\n下のボタンからサロンを作りましょう',
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return SalonCreationScreen(userModel: userModel);
+                    },
+                  ),
+                );
+              },
+              child: Text('サロンを作る'),
+            ),
+          ],
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildDrawer(BuildContext context, UserModel userModel) {
     List<Widget> drawerMenuItems = [
