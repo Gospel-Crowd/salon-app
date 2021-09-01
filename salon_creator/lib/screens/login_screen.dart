@@ -5,10 +5,12 @@ import 'package:salon_creator/app.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/firebase/sign_in.dart';
+import 'package:salon_creator/models/creator_model.dart';
 import 'package:salon_creator/models/member_model.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/models/user_profile_model.dart';
 import 'package:salon_creator/models/user_setting_model.dart';
+import 'package:salon_creator/screens/salon_creation_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key key}) : super(key: key);
@@ -140,7 +142,16 @@ class _LoginScreenState extends State<LoginScreen> {
           if (snapshot.docs.isNotEmpty) {
             Navigator.of(context).pushReplacementNamed('/home');
           } else {
-            Navigator.of(context).pushReplacementNamed('/salon_creation');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return SalonCreationScreen(
+                    userModel: CreatorModel.fromMap(userModel.toMap()),
+                  );
+                },
+              ),
+            );
           }
         },
       );

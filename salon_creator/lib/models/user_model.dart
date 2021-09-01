@@ -35,7 +35,9 @@ class UserModel {
       : email = map['email'],
         role = RoleType.values[map['role']],
         settings = UserSettings.fromMap(map['setting'].cast<String, dynamic>()),
-        created = map['created'].toDate(),
+        created = map['created'] is DateTime
+            ? map['created']
+            : map['created'].toDate(),
         profile =
             UserProfileModel.fromMap(map['profile'].cast<String, dynamic>());
 }

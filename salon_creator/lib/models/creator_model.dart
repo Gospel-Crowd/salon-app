@@ -20,12 +20,10 @@ class CreatorModel extends UserModel {
         );
 
   Map<String, dynamic> toMap() {
-    var creatorMap = {
-      'salonId': salonId,
-    };
-    creatorMap.addAll(super.toMap());
+    var superMap = super.toMap();
+    superMap['salonId'] = salonId;
 
-    return creatorMap;
+    return superMap;
   }
 
   factory CreatorModel.fromMap(Map<String, dynamic> map) {
