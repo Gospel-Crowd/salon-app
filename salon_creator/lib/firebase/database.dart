@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:salon_creator/models/creator_model.dart';
+import 'package:salon_creator/models/lesson.dart';
 import 'package:salon_creator/models/salon.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:uuid/uuid.dart';
@@ -8,9 +10,11 @@ import 'package:uuid/uuid.dart';
 class DbHandler {
   static final String usersCollection = 'users';
   static final String salonsCollection = 'salons';
+  static final String lessonsCollection = 'lessons';
 
   var userCollectionRef;
   var salonCollectionRef;
+  var lessonCollectionRef;
 
   DbHandler() {
     userCollectionRef = FirebaseFirestore.instance.collection(usersCollection);
@@ -34,10 +38,24 @@ class DbHandler {
       .collection(salonsCollection)
       .add(salon.toMap())
       .then((value) => value.id);
+
+  Future getSalon(CreatorModel creator) async => await salonCollectionRef
+      .where(['salonId'], isEqualTo: creator.salonId)
+      .get()
+      .docs
+      .first;
+
+  Future addLesson(Lesson lesson, String userId) async =>
+      await salonCollectionRef
+          .doc(userId)
+          .collection("lessons")
+          .doc()
+          .set(lesson.toMap());
 }
 
 class StorageHandler {
   static final String imageFilePath = "images";
+  static final String resourcesPath = "resources";
 
   var imageFileRef;
 
@@ -45,13 +63,26 @@ class StorageHandler {
     imageFileRef = FirebaseStorage.instance.ref().child(imageFilePath);
   }
 
-  Future<String> uploadImageAndGetUrl(File file) async {
-    var snapshot = await FirebaseStorage.instance
-        .ref()
-        .child('images')
-        .child('${Uuid().v1()}.png')
-        .putFile(file);
+  Future<String> uploadResourceAndGetUrl(File file) async {
+    if (file != null) {
+      var snapshot =
+          await FirebaseStorage.instance.ref().child('resources').putFile(file);
 
-    return snapshot.ref.getDownloadURL();
+      return snapshot.ref.getDownloadURL();
+    }
+    return "";
+  }
+
+  Future<String> uploadImageAndGetUrl(File file) async {
+    if (file != null) {
+      var snapshot = await FirebaseStorage.instance
+          .ref()
+          .child('images')
+          .child('${Uuid().v1()}.png')
+          .putFile(file);
+
+      return snapshot.ref.getDownloadURL();
+    }
+    return "";
   }
 }

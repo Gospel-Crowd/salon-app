@@ -26,13 +26,12 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
   final ImagePicker imagePicker = ImagePicker();
   int _selectedImageIndex = 0;
   List<XFile> _imageFiles = [];
-
-  ScrollController _scrollController = ScrollController();
+  XFile image;
   TextEditingController categoriesController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController salonNameController = TextEditingController();
-  XFile image;
+  ScrollController _scrollController = ScrollController();
 
   void _updateScreenContext() {
     var _hasProfileChanged = salonNameController.text.isNotEmpty ||
@@ -279,7 +278,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     );
   }
 
-  void _buildDeleteConfirmationDialog(BuildContext context) {
+  Future<void> _buildDeleteConfirmationDialog(BuildContext context) async {
     return showCustomDialog(
       context: context,
       title: Text(
@@ -478,6 +477,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     final dbHandler = DbHandler();
     final storageHandler = StorageHandler();
     Salon salon = Salon();
+
     salon.category = categoriesController.text;
     salon.description = descriptionController.text;
     salon.name = salonNameController.text;
