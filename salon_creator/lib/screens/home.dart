@@ -34,7 +34,34 @@ class _HomePageState extends State<HomePage> {
 
         var creatorModel = CreatorModel.fromMap(snapshot.data.data());
 
-        return _buildHomePageInternal(context, creatorModel);
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('lesson_creation');
+                  },
+                  icon: Icon(Icons.add_circle_outline),
+                  color: primaryColor,
+                )
+              ],
+              title: Text('ホーム'),
+              iconTheme: IconThemeData(color: Colors.black),
+              bottom: TabBar(
+                tabs: [
+                  Tab(text: "レッスン"),
+                  Tab(
+                    text: "メンバー",
+                  )
+                ],
+              ),
+            ),
+            drawer: _buildDrawer(context, creatorModel),
+            body: _buildHomePageInternal(context, creatorModel),
+          ),
+        );
       },
     );
   }

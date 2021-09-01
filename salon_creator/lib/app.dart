@@ -5,6 +5,7 @@ import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
 import 'package:salon_creator/screens/home.dart';
+import 'package:salon_creator/screens/lesson_creation_screen.dart';
 import 'package:salon_creator/screens/login_screen.dart';
 import 'package:salon_creator/screens/registration_success_screen.dart';
 import 'package:salon_creator/screens/salon_creation_screen.dart';
@@ -31,6 +32,7 @@ class SalonCreatorApp extends StatelessWidget {
           '/terms': (context) => TermsScreen(),
           '/user/profile/get': (context) => UserProfileScreen(),
           '/user/profile/update': (context) => UserProfileEditScreen(),
+          'lesson_creation': (context) => LessonCreationScreen(),
         },
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
@@ -68,8 +70,12 @@ class SalonCreatorApp extends StatelessWidget {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(primaryColor),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
+          backgroundColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.disabled)) {
+              return null;
+            }
+            return primaryColor;
+          }),
         ),
       ),
       dividerColor: Color.fromRGBO(193, 193, 193, 1),
