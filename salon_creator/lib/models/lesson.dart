@@ -1,21 +1,21 @@
 class Lesson {
   String salonId;
   String name;
-  String thumbnail;
-  String media;
+  String thumbnailUrl;
+  String mediaUrl;
   String category;
   String description;
-  bool publish;
-  List<String> resources;
+  bool isPublish;
+  List<Map<String, dynamic>> resources;
 
   Lesson({
     this.salonId,
     this.name,
-    this.thumbnail,
-    this.media,
+    this.thumbnailUrl,
+    this.mediaUrl,
     this.category,
     this.description,
-    this.publish,
+    this.isPublish,
     this.resources,
   });
 
@@ -23,23 +23,24 @@ class Lesson {
     return {
       'salonId': this.salonId,
       'name': this.name,
-      'thumbnail': this.thumbnail,
-      'media': this.media,
+      'thumbnailUrl': this.thumbnailUrl,
+      'mediaUrl': this.mediaUrl,
       'category': this.category,
       'description': this.description,
-      'publish': this.publish,
-      'resources': List.castFrom(this.resources),
+      'isPublish': this.isPublish,
+      'resources': this.resources,
     };
   }
 
   Lesson.fromMap(Map<String, dynamic> map) {
     this.salonId = map['salonId'];
     this.name = map['name'];
-    this.thumbnail = map['thumbnail'];
-    this.media = map['media'];
+    this.thumbnailUrl = map['thumbnailUrl'];
+    this.mediaUrl = map['mediaUrl'];
     this.category = map['category'];
     this.description = map['description'];
-    this.publish = map['publish'];
-    this.resources = map['resources'].cast<String>() as List<String>;
+    this.isPublish = map['isPublish'];
+    this.resources =
+        map['resources'].cast<String>() as List<Map<String, dynamic>>;
   }
 }

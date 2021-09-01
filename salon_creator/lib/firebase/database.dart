@@ -45,9 +45,9 @@ class DbHandler {
       .docs
       .first;
 
-  Future addLesson(Lesson lesson, String userId) async =>
+  Future addLesson(Lesson lesson, String salonId) async =>
       await salonCollectionRef
-          .doc(userId)
+          .doc(salonId)
           .collection("lessons")
           .doc()
           .set(lesson.toMap());
@@ -70,7 +70,7 @@ class StorageHandler {
 
       return snapshot.ref.getDownloadURL();
     }
-    return "";
+    return null;
   }
 
   Future<String> uploadImageAndGetUrl(File file) async {
@@ -83,6 +83,6 @@ class StorageHandler {
 
       return snapshot.ref.getDownloadURL();
     }
-    return "";
+    return null;
   }
 }

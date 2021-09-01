@@ -41,10 +41,9 @@ class _HomePageState extends State<HomePage> {
               actions: [
                 IconButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed('lesson_creation');
+                    Navigator.of(context).pushNamed('/lesson/create');
                   },
                   icon: Icon(Icons.add_circle_outline),
-                  color: primaryColor,
                 )
               ],
               title: Text('ホーム'),
@@ -52,9 +51,7 @@ class _HomePageState extends State<HomePage> {
               bottom: TabBar(
                 tabs: [
                   Tab(text: "レッスン"),
-                  Tab(
-                    text: "メンバー",
-                  )
+                  Tab(text: "メンバー"),
                 ],
               ),
             ),

@@ -5,9 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/common/color.dart';
-import 'package:salon_creator/common/image_picker.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/models/lesson.dart';
+import 'package:salon_creator/models/resource.dart';
 import 'package:salon_creator/widgets/custom_button.dart';
 import 'package:salon_creator/widgets/custom_dialog.dart';
 import 'package:salon_creator/widgets/custom_label.dart';
@@ -21,32 +21,44 @@ class LessonCreationScreen extends StatefulWidget {
 }
 
 class _LessonCreationScreenState extends State<LessonCreationScreen> {
-  bool _publish = false;
-  bool isFormFilled = false;
-  bool operationInProgress = false;
-  List<File> resources = [];
-  List<String> resourcesList = [];
-  TextEditingController categoriesController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
-  TextEditingController lessonNameController = TextEditingController();
+  bool _isPublish = false;
+  bool _isFormFilled = false;
+  bool _operationInProgress = false;
+  List<File> _resources = [];
+  List<String> _resourcesList = [];
+  TextEditingController _categoriesController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _lessonNameController = TextEditingController();
   XFile _imageFile;
   XFile _mediaFile;
-  XFile thumbnailFile;
-  XFile image;
+  XFile _thumbnailFile;
+
+  Future<XFile> imagePicker() async {
+    final ImagePicker imagePicker = ImagePicker();
+    XFile imageFile;
+    try {
+      final pickedFile =
+          await imagePicker.pickImage(source: ImageSource.gallery);
+      imageFile = pickedFile;
+    } catch (e) {
+      print(e);
+    }
+    return imageFile;
+  }
 
   void _updateScreenContext() {
     var _hasProfileChanged = _mediaFile != null ||
-        thumbnailFile != null ||
-        categoriesController.text.isNotEmpty ||
-        descriptionController.text.isNotEmpty ||
-        resourcesList.isNotEmpty ||
-        lessonNameController.text.isNotEmpty;
+        _thumbnailFile != null ||
+        _categoriesController.text.isNotEmpty ||
+        _descriptionController.text.isNotEmpty ||
+        _resourcesList.isNotEmpty ||
+        _lessonNameController.text.isNotEmpty;
     setState(() {
-      isFormFilled = _hasProfileChanged;
+      _isFormFilled = _hasProfileChanged;
     });
   }
 
-  void _changeSwtich(bool e) => setState(() => _publish = e);
+  void _changeSwitch(bool e) => setState(() => _isPublish = e);
 
   void _showBottomSheet() async {
     return await showModalBottomSheet(
@@ -78,7 +90,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     );
   }
 
-  void _filePicker() async {
+  void _pickFile() async {
     FilePickerResult result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -87,9 +99,8 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     if (result != null) {
       for (int i = 0; i < result.count; i++) {
         setState(() {
-          resourcesList.add(result.names[i]);
-          resources.add(File(result.paths[i]));
-          print(resources[i]);
+          _resourcesList.add(result.names[i]);
+          _resources.add(File(result.paths[i]));
         });
       }
     } else {
@@ -100,8 +111,8 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: operationInProgress ? null : _buildAppBar(context),
-      body: operationInProgress
+      appBar: _operationInProgress ? null : _buildAppBar(context),
+      body: _operationInProgress
           ? _buildCreateInProgressScreen()
           : _buildLessonCreationInner(context),
     );
@@ -129,7 +140,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                 SizedBox(height: 8),
                 _buildMediaFileContainer(),
                 _buildSalonDetailForms(screenWidth),
-                isFormFilled ? Container() : Text("空欄の部分があります"),
+                _isFormFilled ? Container() : Text("空欄の部分があります"),
                 _buildLessonSaveButton(screenWidth, screenHeight),
               ],
             ),
@@ -144,13 +155,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            "作成中です",
-            style: TextStyle(
-              color: primaryColor,
-              fontSize: 24,
-            ),
-          ),
+          Text("作成中です", style: Theme.of(context).textTheme.headline3),
           SizedBox(
             height: 16,
           ),
@@ -176,29 +181,22 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     );
   }
 
-  delete(index) {
-    setState(() {
-      resourcesList.removeAt(index);
-    });
-    Navigator.pop(context);
-  }
-
   Widget _buildLessonSaveButton(double screenWidth, double screenHeight) {
     return CustomButton(
-      function: isFormFilled
+      function: _isFormFilled
           ? () async {
               setState(() {
-                operationInProgress = true;
+                _operationInProgress = true;
               });
               await _saveLessonDetail().whenComplete(() {
                 setState(() {
-                  operationInProgress = false;
+                  _operationInProgress = false;
                 });
                 Navigator.of(context).pushReplacementNamed('/home');
               });
             }
           : null,
-      text: _publish ? "保存" : "下書きを保存",
+      text: _isPublish ? "保存" : "下書きを保存",
       width: screenWidth * 0.4,
       height: screenHeight * 0.05,
     );
@@ -213,17 +211,16 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         color: Color.fromRGBO(195, 195, 195, 0.3),
         child: AspectRatio(
           aspectRatio: 16 / 9,
-          child: thumbnailFile == null
+          child: _thumbnailFile == null
               ? TextButton(
                   child: Icon(
                     Icons.add_circle,
                     size: 64,
-                    color: primaryColor,
                   ),
                   onPressed: () async {
                     _imageFile = await imagePicker();
                     setState(() {
-                      thumbnailFile = _imageFile;
+                      _thumbnailFile = _imageFile;
                     });
                   },
                 )
@@ -236,7 +233,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                       fit: BoxFit.cover,
                       image: FileImage(
                         File(
-                          thumbnailFile.path,
+                          _thumbnailFile.path,
                         ),
                       ),
                     ),
@@ -262,7 +259,6 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                   child: Icon(
                     Icons.add_circle,
                     size: 64,
-                    color: primaryColor,
                   ),
                   onPressed: _showBottomSheet,
                 )
@@ -310,7 +306,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                 "公開",
                 style: Theme.of(context).textTheme.headline3,
               ),
-              Switch(value: _publish, onChanged: _changeSwtich),
+              Switch(value: _isPublish, onChanged: _changeSwitch),
             ],
           ),
           SizedBox(height: 16),
@@ -328,7 +324,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
             CustomLabel(title: "リソース"),
             ElevatedButton(
               onPressed: () {
-                _filePicker();
+                _pickFile();
               },
               child: Text("リソース"),
             ),
@@ -343,7 +339,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     return Container(
       height: 200,
       child: ListView.builder(
-        itemCount: resourcesList.length,
+        itemCount: _resourcesList.length,
         itemBuilder: (BuildContext context, index) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -362,7 +358,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       children: [
         Flexible(
           child: Text(
-            resourcesList[index],
+            _resourcesList[index],
             style: Theme.of(context).textTheme.headline4,
             overflow: TextOverflow.ellipsis,
           ),
@@ -381,7 +377,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     return TextFieldWithLabel(
       maxLines: 1,
       onChanged: (_) => _updateScreenContext(),
-      controller: lessonNameController,
+      controller: _lessonNameController,
       title: "レッスン名",
       hintText: "ゴスペルピアノ",
     );
@@ -391,7 +387,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     return TextFieldWithLabel(
       maxLines: 1,
       onChanged: (_) => _updateScreenContext(),
-      controller: categoriesController,
+      controller: _categoriesController,
       title: "カテゴリー",
       hintText: "ゴスペル、ピアノ、ギター等",
     );
@@ -422,7 +418,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       height: 216,
       child: TextField(
         onChanged: (_) => _updateScreenContext(),
-        controller: descriptionController,
+        controller: _descriptionController,
         textAlignVertical: TextAlignVertical.center,
         keyboardType: TextInputType.multiline,
         maxLength: 300,
@@ -483,7 +479,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       leftButtonText: "削除する",
       leftFunction: () {
         setState(() {
-          resourcesList.removeAt(index);
+          _resourcesList.removeAt(index);
         });
 
         Navigator.pop(context);
@@ -493,12 +489,6 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         Navigator.of(context).pop();
       },
     );
-  }
-
-  removeFile() {
-    setState(() {
-      thumbnailFile = null;
-    });
   }
 
   _buildDeleteThumbnailConfirmationDialog() async {
@@ -515,7 +505,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       leftButtonText: "削除する",
       leftFunction: () {
         setState(() {
-          thumbnailFile = null;
+          _thumbnailFile = null;
         });
         Navigator.of(context).pop();
       },
@@ -556,29 +546,36 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     final dbHandler = DbHandler();
     final storageHandler = StorageHandler();
     Lesson lesson = Lesson();
-    lesson.resources = [];
+    lesson.resources = _resources.isNotEmpty ? [] : null;
     lesson.salonId = "XytREh97Xs9pJvnI13JS";
-    lesson.name = lessonNameController?.text;
-    lesson.category = categoriesController?.text;
-    lesson.description = descriptionController?.text;
-    lesson.publish = _publish;
-    lesson.media = _mediaFile != null
+    lesson.name = _lessonNameController.text.isNotEmpty
+        ? _lessonNameController.text
+        : null;
+    lesson.category = _categoriesController.text.isNotEmpty
+        ? _categoriesController.text
+        : null;
+    lesson.description = _descriptionController.text.isNotEmpty
+        ? _descriptionController.text
+        : null;
+    lesson.isPublish = _isPublish;
+    lesson.mediaUrl = _mediaFile != null
         ? await storageHandler.uploadImageAndGetUrl(File(_mediaFile.path))
-        : "";
+        : null;
 
-    lesson.thumbnail = thumbnailFile != null
-        ? await storageHandler.uploadImageAndGetUrl(File(thumbnailFile.path))
-        : "";
-    lesson.resources = [];
+    lesson.thumbnailUrl = _thumbnailFile != null
+        ? await storageHandler.uploadImageAndGetUrl(File(_thumbnailFile.path))
+        : null;
 
-    if (resourcesList != null) {
-      for (int i = 0; i < resourcesList.length; i++) {
+    if (_resourcesList != null) {
+      for (int i = 0; i < _resourcesList.length; i++) {
         lesson.resources.add(
-          await storageHandler.uploadResourceAndGetUrl(
-            File(resources[i].path),
-          ),
+          Resource(
+            displayName: _resourcesList[i],
+            url: await storageHandler.uploadResourceAndGetUrl(
+              File(_resources[i].path),
+            ),
+          ).toMap(),
         );
-        print(resourcesList[i]);
       }
     }
     await dbHandler.addLesson(lesson, "XytREh97Xs9pJvnI13JS");

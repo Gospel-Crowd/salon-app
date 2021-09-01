@@ -20,35 +20,37 @@ class SalonCreatorApp extends StatelessWidget {
   const SalonCreatorApp({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        theme: _buildThemeData(context),
-        routes: {
-          '/contact_us': (context) => ContactUsScreen(),
-          '/home': (context) => HomePage(),
-          '/login': (context) => LoginScreen(),
-          '/registration_success': (context) => RegistrationSuccessScreen(),
-          '/salon_creation': (context) => SalonCreationScreen(),
-          '/salon_registration': (context) => SalonRegistrationScreen(),
-          '/terms': (context) => TermsScreen(),
-          '/user/profile/get': (context) => UserProfileScreen(),
-          '/user/profile/update': (context) => UserProfileEditScreen(),
-          'lesson_creation': (context) => LessonCreationScreen(),
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: _buildThemeData(context),
+      routes: {
+        '/contact_us': (context) => ContactUsScreen(),
+        '/home': (context) => HomePage(),
+        '/login': (context) => LoginScreen(),
+        '/registration_success': (context) => RegistrationSuccessScreen(),
+        '/salon_creation': (context) => SalonCreationScreen(),
+        '/salon_registration': (context) => SalonRegistrationScreen(),
+        '/terms': (context) => TermsScreen(),
+        '/user/profile/get': (context) => UserProfileScreen(),
+        '/user/profile/update': (context) => UserProfileEditScreen(),
+        '/lesson/create': (context) => LessonCreationScreen(),
+      },
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (ctx, snapshot) {
+          final User user = snapshot.data;
+          if (snapshot.hasData &&
+              FirebaseFirestore.instance
+                      .collection(DbHandler.usersCollection)
+                      .doc(user.email) ==
+                  null) {
+            return _buildHomePage();
+          }
+          return LoginScreen();
         },
-        home: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (ctx, snapshot) {
-            final User user = snapshot.data;
-            if (snapshot.hasData &&
-                FirebaseFirestore.instance
-                        .collection(DbHandler.usersCollection)
-                        .doc(user.email) ==
-                    null) {
-              return _buildHomePage();
-            }
-            return LoginScreen();
-          },
-        ),
-      );
+      ),
+    );
+  }
 
   ThemeData _buildThemeData(BuildContext context) {
     var defaultThemeData = Theme.of(context);
@@ -56,7 +58,8 @@ class SalonCreatorApp extends StatelessWidget {
 
     return defaultThemeData.copyWith(
       primaryColor: primaryColor,
-      textTheme: textTheme,
+      iconTheme: IconThemeData(color: primaryColor),
+      textTheme: _buildTextTheme(defaultThemeData),
       inputDecorationTheme: defaultThemeData.inputDecorationTheme.copyWith(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(5)),
