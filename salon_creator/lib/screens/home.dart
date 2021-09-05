@@ -34,12 +34,7 @@ class _HomePageState extends State<HomePage> {
 
         var creatorModel = CreatorModel.fromMap(snapshot.data.data());
 
-        return DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            body: _buildHomePageInternal(context, creatorModel),
-          ),
-        );
+        return _buildHomePageInternal(context, creatorModel);
       },
     );
   }
@@ -58,6 +53,13 @@ class _HomePageState extends State<HomePage> {
               length: 2,
               child: Scaffold(
                 appBar: AppBar(
+                  actions: [
+                    IconButton(
+                      onPressed: () =>
+                          Navigator.of(context).pushNamed('/lesson/create'),
+                      icon: Icon(Icons.add_circle_outline, color: primaryColor),
+                    )
+                  ],
                   bottom: TabBar(
                     tabs: [
                       Tab(text: 'レッスン'),

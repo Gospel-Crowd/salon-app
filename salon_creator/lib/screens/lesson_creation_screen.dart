@@ -395,6 +395,9 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
+      iconTheme: IconThemeData(
+        color: primaryColor, //change your color here
+      ),
       title: Text("レッスン作成"),
     );
   }
