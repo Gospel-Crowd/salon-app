@@ -21,7 +21,7 @@ class LessonCreationScreen extends StatefulWidget {
 }
 
 class _LessonCreationScreenState extends State<LessonCreationScreen> {
-  bool _isPublish = false;
+  bool _isPublished = false;
   bool _isFormFilled = false;
   bool _operationInProgress = false;
   List<File> _resources = [];
@@ -33,7 +33,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   XFile _mediaFile;
   XFile _thumbnailFile;
 
-  Future<XFile> imagePicker() async {
+  Future<XFile> _pickImage() async {
     final ImagePicker imagePicker = ImagePicker();
     XFile imageFile;
     try {
@@ -58,7 +58,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     });
   }
 
-  void _changeSwitch(bool e) => setState(() => _isPublish = e);
+  void _changeSwitch(bool e) => setState(() => _isPublished = e);
 
   void _showBottomSheet() async {
     return await showModalBottomSheet(
@@ -71,7 +71,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
               ListTile(
                 title: Text("写真を選ぶ"),
                 onTap: () async {
-                  final _imageFile = await imagePicker();
+                  final _imageFile = await _pickImage();
                   setState(() {
                     _mediaFile = _imageFile;
                   });
@@ -196,7 +196,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
               });
             }
           : null,
-      text: _isPublish ? "保存" : "下書きを保存",
+      text: _isPublished ? "保存" : "下書きを保存",
       width: screenWidth * 0.4,
       height: screenHeight * 0.05,
     );
@@ -218,7 +218,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                     size: 64,
                   ),
                   onPressed: () async {
-                    _imageFile = await imagePicker();
+                    _imageFile = await _pickImage();
                     setState(() {
                       _thumbnailFile = _imageFile;
                     });
@@ -306,7 +306,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                 "公開",
                 style: Theme.of(context).textTheme.headline3,
               ),
-              Switch(value: _isPublish, onChanged: _changeSwitch),
+              Switch(value: _isPublished, onChanged: _changeSwitch),
             ],
           ),
           SizedBox(height: 16),
@@ -557,7 +557,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     lesson.description = _descriptionController.text.isNotEmpty
         ? _descriptionController.text
         : null;
-    lesson.isPublish = _isPublish;
+    lesson.isPublish = _isPublished;
     lesson.mediaUrl = _mediaFile != null
         ? await storageHandler.uploadImageAndGetUrl(File(_mediaFile.path))
         : null;
