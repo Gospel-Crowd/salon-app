@@ -7,16 +7,25 @@ import 'package:salon_creator/models/user_model.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 UserModel currentSignedInUser = UserModel();
+String userAccessToken;
 
 Future<UserCredential> signInWithGoogle() async {
-  final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
-  final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-  final credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth.accessToken,
-    idToken: googleAuth.idToken,
-  );
+  final GoogleSignInAccount googleUser = await GoogleSignIn(
+    scopes: ['https://www.googleapis.com/auth/drive'],
+  ).signIn();
+  if (googleUser != null) {
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    userAccessToken = credential.accessToken;
 
-  return await FirebaseAuth.instance.signInWithCredential(credential);
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+  
+  return null;
 }
 
 String generateNonce([int length = 32]) {

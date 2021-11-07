@@ -205,18 +205,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await method.whenComplete(() async {
-        var userModel =
-            await dbHandler.getUser(FirebaseAuth.instance.currentUser.email);
+        if (FirebaseAuth.instance.currentUser != null) {
+          var userModel =
+              await dbHandler.getUser(FirebaseAuth.instance.currentUser.email);
 
-        if (userModel == null) {
-          userModel = await _addToDatabase();
+          if (userModel == null) {
+            userModel = await _addToDatabase();
+          }
+
+          setState(() {
+            userLoggedIn = true;
+          });
+
+          _navigateBasedOnRole(userModel);
         }
-
-        setState(() {
-          userLoggedIn = true;
-        });
-
-        _navigateBasedOnRole(userModel);
       });
     } on FirebaseAuthException catch (e) {
       print(e.message);

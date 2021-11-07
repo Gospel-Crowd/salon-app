@@ -11,6 +11,7 @@ class DbHandler {
   static final String usersCollection = 'users';
   static final String salonsCollection = 'salons';
   static final String lessonsCollection = 'lessons';
+  static final String transfersCollection = 'transfers';
 
   var userCollectionRef;
   var salonCollectionRef;
@@ -83,6 +84,20 @@ class StorageHandler {
 
       return snapshot.ref.getDownloadURL();
     }
+    return null;
+  }
+
+  Future<String> getCloudFileThumbnailUrl(String fileId) async {
+    if (fileId != null) {
+      var snapshot = FirebaseStorage.instanceFor(bucket: 'gospel-crowd-salon-app-test-bucket')
+          .ref()
+          .child('${fileId}_thumbnail');
+
+      if (snapshot != null) {
+        return await snapshot.getDownloadURL();
+      }
+    }
+
     return null;
   }
 }
