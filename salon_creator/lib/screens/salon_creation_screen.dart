@@ -1,11 +1,13 @@
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/models/creator_model.dart';
+import 'package:salon_creator/models/cloud_file.dart';
+import 'package:salon_creator/models/media_object.dart';
 import 'package:salon_creator/models/salon.dart';
+import 'package:salon_creator/screens/gdrive_picker_screen.dart';
 import 'package:salon_creator/widgets/custom_button.dart';
 import 'package:salon_creator/widgets/custom_dialog.dart';
 import 'package:salon_creator/widgets/custom_label.dart';
@@ -21,11 +23,14 @@ class SalonCreationScreen extends StatefulWidget {
 }
 
 class _SalonCreationScreenState extends State<SalonCreationScreen> {
+  final double thumbnailHeight = 48;
+  final double thumbnailWidth = 60;
+
   bool isFormFilled = false;
   bool operationInProgress = false;
   final ImagePicker imagePicker = ImagePicker();
   int _selectedImageIndex = 0;
-  List<XFile> _imageFiles = [];
+  List<MediaObject> _mediaObjects = [];
   XFile image;
   TextEditingController categoriesController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -38,7 +43,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
         categoriesController.text.isNotEmpty ||
         descriptionController.text.isNotEmpty ||
         priceController.text.isNotEmpty ||
-        _imageFiles.isNotEmpty;
+        _mediaObjects.isNotEmpty;
     setState(() {
       isFormFilled = _hasProfileChanged;
     });
@@ -73,7 +78,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
             child: Column(
               children: [
                 SizedBox(height: 8),
-                _buildMediaPreviewerDivider(),
+                _buildMediaPreviewerTitle(),
                 SizedBox(height: 8),
                 _buildMediaPreviewer(screenHeight, screenWidth, context),
                 _buildMediaPane(context),
@@ -93,7 +98,13 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("作成中です", style: Theme.of(context).textTheme.headline2),
+          Text(
+            "作成中です",
+            style: Theme.of(context)
+                .textTheme
+                .headline2
+                .apply(color: primaryColor),
+          ),
           SizedBox(height: 16),
           Container(
             width: MediaQuery.of(context).size.width * 0.3,
@@ -108,7 +119,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     );
   }
 
-  Widget _buildMediaPreviewerDivider() {
+  Widget _buildMediaPreviewerTitle() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -144,13 +155,15 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
         color: Color.fromRGBO(195, 195, 195, 0.3),
       ),
       margin: EdgeInsets.only(top: 8),
-      height: 48,
+      height: thumbnailHeight,
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             _buildMediaPaneAddButton(context),
-            _imageFiles != null ? _buildMediaPaneThumbnailList() : Container(),
+            _mediaObjects != null
+                ? _buildMediaPaneThumbnailList()
+                : Container(),
           ],
         ),
       ),
@@ -162,26 +175,26 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         controller: _scrollController,
-        itemCount: _imageFiles.length,
+        itemCount: _mediaObjects.length,
         itemBuilder: (BuildContext context, i) {
           return Stack(
             alignment: Alignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.symmetric(horizontal: 2),
                 child: _buildMediaPaneThumbnail(i),
               ),
               _selectedImageIndex == i
                   ? Container(
-                      width: 80,
-                      height: 48,
+                      width: thumbnailWidth,
+                      height: thumbnailHeight,
                       decoration: BoxDecoration(
-                        border: Border.all(color: primaryColor, width: 3),
+                        border: Border.all(color: primaryColor, width: 4),
                       ),
                     )
                   : Container(
-                      width: 80,
-                      height: 48,
+                      width: thumbnailWidth,
+                      height: thumbnailHeight,
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
@@ -198,18 +211,35 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
   }
 
   Widget _buildMediaPaneThumbnail(int i) {
+    Widget imageWidget = Container();
+    var mediaObject = _mediaObjects[i];
+    if (mediaObject is ImageMediaObject) {
+      imageWidget = Image(
+        fit: BoxFit.cover,
+        width: thumbnailWidth,
+        height: thumbnailHeight,
+        image: mediaObject.buildImage(),
+      );
+    } else if (mediaObject is VideoMediaObject) {
+      imageWidget = Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          Image(
+            fit: BoxFit.cover,
+            width: thumbnailWidth,
+            height: thumbnailHeight,
+            image: mediaObject.buildThumbnail(),
+          ),
+          Icon(Icons.play_circle, size: 32, color: Colors.white),
+        ],
+      );
+    }
+
     return Stack(
       alignment: Alignment.topRight,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       children: [
-        Image(
-          fit: BoxFit.cover,
-          width: 80,
-          height: 45,
-          image: FileImage(
-            File(_imageFiles[i].path),
-          ),
-        ),
+        imageWidget,
       ],
     );
   }
@@ -239,7 +269,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       color: Color.fromRGBO(195, 195, 195, 0.3),
       height: screenWidth * 0.563,
       width: screenWidth,
-      child: _imageFiles.isEmpty
+      child: _mediaObjects.isEmpty
           ? TextButton(
               child: Icon(Icons.add_circle, size: 64, color: primaryColor),
               onPressed: () {
@@ -249,18 +279,38 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
           : Stack(
               alignment: Alignment.topLeft,
               children: [
-                Image(
-                  height: screenWidth * 0.563,
-                  width: screenWidth,
-                  fit: BoxFit.cover,
-                  image: FileImage(
-                    File(_imageFiles[_selectedImageIndex].path),
-                  ),
-                ),
+                _buildImageOrVideoPreview(screenHeight, screenWidth),
                 _buildDeleteButton(context),
               ],
             ),
     );
+  }
+
+  Widget _buildImageOrVideoPreview(double screenHeight, double screenWidth) {
+    var mediaObject = _mediaObjects[_selectedImageIndex];
+    if (mediaObject is ImageMediaObject) {
+      return Image(
+        height: screenWidth * 0.563,
+        width: screenWidth,
+        fit: BoxFit.cover,
+        image: mediaObject.buildImage(),
+      );
+    } else if (mediaObject is VideoMediaObject) {
+      return Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          Image(
+            height: screenWidth * 0.563,
+            width: screenWidth,
+            fit: BoxFit.cover,
+            image: mediaObject.buildThumbnail(),
+          ),
+          Icon(Icons.play_circle, size: 80, color: Colors.white),
+        ],
+      );
+    }
+
+    return null;
   }
 
   Widget _buildDeleteButton(BuildContext context) {
@@ -292,7 +342,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       leftButtonText: "削除する",
       leftFunction: () {
         setState(() {
-          _imageFiles.removeAt(_selectedImageIndex);
+          _mediaObjects.removeAt(_selectedImageIndex);
           _selectedImageIndex -= 1;
         });
         Navigator.of(context).pop();
@@ -314,22 +364,38 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
             children: [
               ListTile(
                 title: Text("写真を選ぶ"),
-                onTap: () async {
-                  await _storeMediaFiles(context);
-                },
+                onTap: () => _storeMediaFiles(context),
               ),
-              Divider(
-                height: 0,
-              ),
+              Divider(height: 0),
               ListTile(
                 title: Text("動画から選ぶ"),
               ),
-              Divider(
-                height: 0,
-              ),
+              Divider(height: 0),
+              _buildGdrivePickerTile(context),
             ],
           ),
         );
+      },
+    );
+  }
+
+  Widget _buildGdrivePickerTile(BuildContext context) {
+    return ListTile(
+      title: Text("Google Drive から選ぶ"),
+      onTap: () async {
+        final gdriveFile = (await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return GdrivePicker(userModel: widget.userModel);
+            },
+          ),
+        )) as CloudFile;
+        if (gdriveFile != null) {
+          setState(() {
+            _mediaObjects.add(CloudVideoMediaObject(cloudFile: gdriveFile));
+          });
+        }
       },
     );
   }
@@ -387,12 +453,6 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
       actions: [
         TextButton(
           onPressed: () {
-            final dbHandler = DbHandler();
-            dbHandler.addSalon(
-              Salon(
-                owner: FirebaseAuth.instance.currentUser.email,
-              ),
-            );
             Navigator.of(context).pushReplacementNamed('/home');
           },
           child: Text("スキップ"),
@@ -475,7 +535,6 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
 
   Future _saveSalonDetail() async {
     final dbHandler = DbHandler();
-    final storageHandler = StorageHandler();
     Salon salon = Salon();
 
     salon.category = categoriesController.text;
@@ -484,13 +543,17 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     salon.owner = FirebaseAuth.instance.currentUser.email;
     salon.price = priceController.text;
     salon.media = [];
-    if (_imageFiles.isNotEmpty) {
-      for (int i = 0; i < _imageFiles.length; i++) {
-        salon.media.add(
-          await storageHandler.uploadImageAndGetUrl(
-            File(_imageFiles[i].path),
-          ),
-        );
+    if (_mediaObjects.isNotEmpty) {
+      for (int i = 0; i < _mediaObjects.length; i++) {
+        if (_mediaObjects[i] is LocalImageMediaObject) {
+          salon.media.add(
+            await (_mediaObjects[i] as LocalImageMediaObject)
+                .uploadImageAndGetUrl(),
+          );
+        } else if (_mediaObjects[i] is CloudVideoMediaObject) {
+          salon.media
+              .add((_mediaObjects[i] as CloudVideoMediaObject).getFileId());
+        }
       }
     }
 
@@ -502,16 +565,17 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
 
   Future<void> _storeMediaFiles(BuildContext context) async {
     try {
-      Navigator.of(context).pop();
       final pickedFile =
           await imagePicker.pickImage(source: ImageSource.gallery);
 
-      setState(() {
-        _imageFiles.add(pickedFile);
-        _selectedImageIndex = _imageFiles.length - 1;
-      });
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToRight());
-      _updateScreenContext();
+      if (pickedFile != null) {
+        setState(() {
+          _mediaObjects.add(LocalImageMediaObject(xFile: pickedFile));
+          _selectedImageIndex = _mediaObjects.length - 1;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToRight());
+        _updateScreenContext();
+      }
     } catch (e) {
       print(e);
     }
