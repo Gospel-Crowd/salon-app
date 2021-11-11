@@ -109,21 +109,7 @@ class _GdrivePickerState extends State<GdrivePicker> {
               )
             : Text(file.name),
         onPressed: () async {
-          http.post(
-            Uri.https(
-              'us-central1-gospel-crowd-salon-app-test.cloudfunctions.net',
-              '/driveTransfer',
-            ),
-            body: json.encode({
-              'accessToken': userAccessToken,
-              'userMailId': currentSignedInUser.email,
-              'fileId': file.id,
-            }),
-            headers: {
-              "content-type": "application/json",
-              "accept": "application/json",
-            },
-          );
+          _triggerDriveTransfer(file);
 
           final transferDetails = (await Navigator.push(
             context,
@@ -135,19 +121,41 @@ class _GdrivePickerState extends State<GdrivePicker> {
           )) as TransferDetails;
 
           if (transferDetails != null) {
-            Navigator.pop(
-              context,
-              CloudFile(
-                id: file.id,
-                name: file.name,
-                thumbnailUrl: transferDetails.thumbnailUrl,
-                sizeInBytes: file.sizeInBytes,
-                source: file.source,
-              ),
-            );
+            _popScreen(file, transferDetails);
           }
         },
       ),
+    );
+  }
+
+  void _popScreen(CloudFile file, TransferDetails transferDetails) {
+    Navigator.pop(
+      context,
+      CloudFile(
+        id: file.id,
+        name: file.name,
+        thumbnailUrl: transferDetails.thumbnailUrl,
+        sizeInBytes: file.sizeInBytes,
+        source: file.source,
+      ),
+    );
+  }
+
+  void _triggerDriveTransfer(CloudFile file) {
+    http.post(
+      Uri.https(
+        'us-central1-gospel-crowd-salon-app-test.cloudfunctions.net',
+        '/driveTransfer',
+      ),
+      body: json.encode({
+        'accessToken': userAccessToken,
+        'userMailId': currentSignedInUser.email,
+        'fileId': file.id,
+      }),
+      headers: {
+        "content-type": "application/json",
+        "accept": "application/json",
+      },
     );
   }
 }
