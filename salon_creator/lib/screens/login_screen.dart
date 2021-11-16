@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     await dbHandler
-        .addUser(userModel)
+        .setUser(userModel)
         .onError((error, stackTrace) => _buildLoginFailedDialog());
 
     return userModel;

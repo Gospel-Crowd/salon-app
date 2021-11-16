@@ -23,11 +23,8 @@ class DbHandler {
         FirebaseFirestore.instance.collection(salonsCollection);
   }
 
-  Future updateUser(UserModel userModel) async =>
-      await userCollectionRef.doc(userModel.email).update(userModel.toMap());
-
-  Future addUser(UserModel userModel) async =>
-      await userCollectionRef.doc(userModel.email).set(userModel.toMap());
+  Future setUser(UserModel userModel) =>
+      userCollectionRef.doc(userModel.email).set(userModel.toMap());
 
   Future<UserModel> getUser(String email) async {
     var dbObject = await userCollectionRef.doc(email).get();
@@ -89,9 +86,9 @@ class StorageHandler {
 
   Future<String> getCloudFileThumbnailUrl(String fileId) async {
     if (fileId != null) {
-      var snapshot = FirebaseStorage.instanceFor(bucket: 'gospel-crowd-salon-app-test-bucket')
-          .ref()
-          .child('${fileId}_thumbnail');
+      var snapshot = FirebaseStorage.instanceFor(
+        bucket: 'gospel-crowd-salon-app-test-bucket',
+      ).ref().child('${fileId}_thumbnail');
 
       if (snapshot != null) {
         return await snapshot.getDownloadURL();

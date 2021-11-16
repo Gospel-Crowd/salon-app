@@ -156,7 +156,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       userModel.profile.imageUrl = await _uploadImageAndGetUrl(_imageFile);
     }
 
-    await dbHandler.updateUser(userModel);
+    await dbHandler.setUser(userModel);
 
     setState(() {
       _opInProgress = false;

@@ -24,9 +24,9 @@ class CreatorModel extends UserModel {
 
   Map<String, dynamic> toMap() {
     var superMap = super.toMap();
-    superMap['salonId'] = salonId;
-    superMap['discoveryData'] = discoveryData.toMap();
 
+    superMap['salonId'] = salonId;
+    
     return superMap;
   }
 
