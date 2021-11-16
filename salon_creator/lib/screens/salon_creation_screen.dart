@@ -560,7 +560,7 @@ class _SalonCreationScreenState extends State<SalonCreationScreen> {
     var salonId = await dbHandler.addSalon(salon);
     widget.userModel.salonId = salonId;
 
-    await dbHandler.updateUser(widget.userModel);
+    await dbHandler.setUser(widget.userModel);
   }
 
   Future<void> _storeMediaFiles(BuildContext context) async {
