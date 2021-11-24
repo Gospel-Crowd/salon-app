@@ -7,6 +7,7 @@ import 'package:salon_creator/firebase/sign_in.dart';
 import 'package:salon_creator/models/creator_model.dart';
 import 'package:salon_creator/models/user_model.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
+import 'package:salon_creator/screens/lesson_creation_screen.dart';
 import 'package:salon_creator/screens/lesson_list_screen.dart';
 import 'package:salon_creator/screens/member_list_screen.dart';
 import 'package:salon_creator/screens/salon_creation_screen.dart';
@@ -39,37 +40,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHomePageInternal(BuildContext context, CreatorModel userModel) =>
-      userModel.salonId == null
-          ? Scaffold(
-              appBar: AppBar(
-                title: Text('ホーム'),
-                iconTheme: IconThemeData(color: Colors.black),
-              ),
-              drawer: _buildDrawer(context, userModel),
-              body: _buildSalonNotYetCreatedView(context, userModel),
-            )
+  Widget _buildHomePageInternal(
+    BuildContext context,
+    CreatorModel creatorModel,
+  ) =>
+      creatorModel.salonId == null
+          ? _buildSalonNotYetCreatedScaffold(context, creatorModel)
           : DefaultTabController(
               length: 2,
               child: Scaffold(
-                appBar: AppBar(
-                  actions: [
-                    IconButton(
-                      onPressed: () =>
-                          Navigator.of(context).pushNamed('/lesson/create'),
-                      icon: Icon(Icons.add_circle_outline, color: primaryColor),
-                    )
-                  ],
-                  bottom: TabBar(
-                    tabs: [
-                      Tab(text: 'レッスン'),
-                      Tab(text: 'メンバー'),
-                    ],
-                  ),
-                  title: Text('ホーム'),
-                  iconTheme: IconThemeData(color: Colors.black),
-                ),
-                drawer: _buildDrawer(context, userModel),
+                appBar: _buildAppBar(context, creatorModel),
+                drawer: _buildDrawer(context, creatorModel),
                 body: TabBarView(
                   children: [
                     LessonListScreen(),
@@ -79,35 +60,78 @@ class _HomePageState extends State<HomePage> {
               ),
             );
 
-  Widget _buildSalonNotYetCreatedView(
+  Widget _buildAppBar(BuildContext context, CreatorModel creatorModel) {
+    return AppBar(
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return LessonCreationScreen(creatorModel: creatorModel);
+                },
+              ),
+            );
+          },
+          icon: Icon(Icons.add_circle_outline, color: primaryColor),
+        )
+      ],
+      bottom: TabBar(
+        tabs: [
+          Tab(text: 'レッスン'),
+          Tab(text: 'メンバー'),
+        ],
+      ),
+      title: Text('ホーム'),
+      iconTheme: IconThemeData(color: Colors.black),
+    );
+  }
+
+  Widget _buildSalonNotYetCreatedScaffold(
     BuildContext context,
-    UserModel userModel,
-  ) =>
-      Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'サロンがまだありません\n下のボタンからサロンを作りましょう',
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return SalonCreationScreen(userModel: userModel);
-                    },
-                  ),
-                );
-              },
-              child: Text('サロンを作る'),
-            ),
-          ],
-        ),
-      );
+    CreatorModel creatorModel,
+  ) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('ホーム'),
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      drawer: _buildDrawer(context, creatorModel),
+      body: _buildSalonNotYetCreatedBody(context, creatorModel),
+    );
+  }
+
+  Widget _buildSalonNotYetCreatedBody(
+    BuildContext context,
+    CreatorModel creatorModel,
+  ) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'サロンがまだありません\n下のボタンからサロンを作りましょう',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return SalonCreationScreen(userModel: creatorModel);
+                  },
+                ),
+              );
+            },
+            child: Text('サロンを作る'),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildDrawer(BuildContext context, UserModel userModel) {
     List<Widget> drawerMenuItems = [
