@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
-import 'package:salon_creator/screens/home.dart';
+import 'package:salon_creator/screens/home_screen.dart';
 import 'package:salon_creator/screens/lesson_creation_screen.dart';
 import 'package:salon_creator/screens/login_screen.dart';
 import 'package:salon_creator/screens/registration_success_screen.dart';

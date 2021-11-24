@@ -1,11 +1,10 @@
-// ignore: unused_import
-import 'dart:ffi';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
+import 'package:salon_creator/models/creator_model.dart';
 import 'package:salon_creator/models/lesson.dart';
 import 'package:salon_creator/models/resource.dart';
 import 'package:salon_creator/widgets/custom_button.dart';
@@ -14,13 +13,18 @@ import 'package:salon_creator/widgets/custom_label.dart';
 import 'package:salon_creator/widgets/custom_textfield.dart';
 
 class LessonCreationScreen extends StatefulWidget {
-  const LessonCreationScreen({Key key}) : super(key: key);
+  const LessonCreationScreen({Key key, this.creatorModel}) : super(key: key);
+
+  final CreatorModel creatorModel;
 
   @override
   _LessonCreationScreenState createState() => _LessonCreationScreenState();
 }
 
 class _LessonCreationScreenState extends State<LessonCreationScreen> {
+  final dbHandler = DbHandler();
+  final storageHandler = StorageHandler();
+
   bool _isPublished = false;
   bool _isFormFilled = false;
   bool _operationInProgress = false;
@@ -203,8 +207,8 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   }
 
   Widget _buildThumbnailFileContainer() {
-    final mq = MediaQuery.of(context).size;
-    final screenWidth = mq.width;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return ConstrainedBox(
       constraints: BoxConstraints(minWidth: screenWidth, minHeight: 50),
       child: Container(
@@ -213,10 +217,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
           aspectRatio: 16 / 9,
           child: _thumbnailFile == null
               ? TextButton(
-                  child: Icon(
-                    Icons.add_circle,
-                    size: 64,
-                  ),
+                  child: Icon(Icons.add_circle, size: 64),
                   onPressed: () async {
                     _imageFile = await _pickImage();
                     setState(() {
@@ -231,11 +232,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                       height: screenWidth * 0.563,
                       width: screenWidth,
                       fit: BoxFit.cover,
-                      image: FileImage(
-                        File(
-                          _thumbnailFile.path,
-                        ),
-                      ),
+                      image: FileImage(File(_thumbnailFile.path)),
                     ),
                     _buildDeleteButton(_buildDeleteThumbnailConfirmationDialog),
                   ],
@@ -246,8 +243,8 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   }
 
   Widget _buildMediaFileContainer() {
-    final mq = MediaQuery.of(context).size;
-    final screenWidth = mq.width;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return ConstrainedBox(
       constraints: BoxConstraints(minWidth: screenWidth, minHeight: 50),
       child: Container(
@@ -256,10 +253,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
           aspectRatio: 16 / 9,
           child: _mediaFile == null
               ? TextButton(
-                  child: Icon(
-                    Icons.add_circle,
-                    size: 64,
-                  ),
+                  child: Icon(Icons.add_circle, size: 64),
                   onPressed: _showBottomSheet,
                 )
               : Stack(
@@ -269,11 +263,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                       height: screenWidth * 0.563,
                       width: screenWidth,
                       fit: BoxFit.cover,
-                      image: FileImage(
-                        File(
-                          _mediaFile.path,
-                        ),
-                      ),
+                      image: FileImage(File(_mediaFile.path)),
                     ),
                     _buildDeleteButton(_buildDeleteMediaFileConfirmationDialog),
                   ],
@@ -396,7 +386,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
       iconTheme: IconThemeData(
-        color: primaryColor, //change your color here
+        color: primaryColor,
       ),
       title: Text("レッスン作成"),
     );
@@ -405,12 +395,8 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   Widget _buildContentForm() {
     return Column(
       children: [
-        CustomLabel(
-          title: "説明文",
-        ),
-        SizedBox(
-          height: 12,
-        ),
+        CustomLabel(title: "説明文"),
+        SizedBox(height: 12),
         _buildDescriptionTextField(),
       ],
     );
@@ -426,9 +412,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         keyboardType: TextInputType.multiline,
         maxLength: 300,
         maxLines: 100,
-        style: TextStyle(
-          fontSize: 16,
-        ),
+        style: Theme.of(context).textTheme.headline4,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           focusedBorder: OutlineInputBorder(
@@ -474,9 +458,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       title: Text(
         "本当に削除しますか?",
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 18,
-        ),
+        style: Theme.of(context).textTheme.headline3,
       ),
       content: "選択されているファイルが削除されます",
       leftButtonText: "削除する",
@@ -500,9 +482,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       title: Text(
         "本当に削除しますか?",
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 18,
-        ),
+        style: Theme.of(context).textTheme.headline3,
       ),
       content: "サムネイルを削除しますか？",
       leftButtonText: "削除する",
@@ -525,9 +505,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       title: Text(
         "本当に削除しますか?",
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 18,
-        ),
+        style: Theme.of(context).textTheme.headline3,
       ),
       content: "選択されている画像・動画が削除されます",
       leftButtonText: "削除する",
@@ -546,11 +524,10 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   }
 
   Future _saveLessonDetail() async {
-    final dbHandler = DbHandler();
-    final storageHandler = StorageHandler();
     Lesson lesson = Lesson();
+
     lesson.resources = _resources.isNotEmpty ? [] : null;
-    lesson.salonId = "XytREh97Xs9pJvnI13JS";
+    lesson.salonId = widget.creatorModel.salonId;
     lesson.name = _lessonNameController.text.isNotEmpty
         ? _lessonNameController.text
         : null;
@@ -561,6 +538,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         ? _descriptionController.text
         : null;
     lesson.isPublish = _isPublished;
+
     lesson.mediaUrl = _mediaFile != null
         ? await storageHandler.uploadImageAndGetUrl(File(_mediaFile.path))
         : null;
@@ -569,6 +547,12 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         ? await storageHandler.uploadImageAndGetUrl(File(_thumbnailFile.path))
         : null;
 
+    await _addResourcesToLesson(lesson);
+
+    await dbHandler.addLesson(lesson, widget.creatorModel.salonId);
+  }
+
+  Future<void> _addResourcesToLesson(Lesson lesson) async {
     if (_resourcesList != null) {
       for (int i = 0; i < _resourcesList.length; i++) {
         lesson.resources.add(
@@ -581,6 +565,5 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         );
       }
     }
-    await dbHandler.addLesson(lesson, "XytREh97Xs9pJvnI13JS");
   }
 }
