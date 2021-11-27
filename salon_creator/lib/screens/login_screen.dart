@@ -221,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       });
     } on FirebaseAuthException catch (e) {
-      print(e.message);
+      Exception(e);
     } finally {
       setState(() {
         _loginInProgress = false;

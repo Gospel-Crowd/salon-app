@@ -6,6 +6,7 @@ import 'package:salon_creator/firebase/database.dart';
 import 'package:salon_creator/screens/contact_us_screen.dart';
 import 'package:salon_creator/screens/home_screen.dart';
 import 'package:salon_creator/screens/lesson_creation_screen.dart';
+import 'package:salon_creator/screens/lesson_edit_screen.dart';
 import 'package:salon_creator/screens/login_screen.dart';
 import 'package:salon_creator/screens/registration_success_screen.dart';
 import 'package:salon_creator/screens/salon_creation_screen.dart';
@@ -13,6 +14,7 @@ import 'package:salon_creator/screens/salon_registration_screen.dart';
 import 'package:salon_creator/screens/terms_screen.dart';
 import 'package:salon_creator/screens/user_profile_edit_screen.dart';
 import 'package:salon_creator/screens/user_profile_screen.dart';
+import 'package:salon_creator/widgets/lesson_card.dart';
 
 bool userLoggedIn = false;
 
@@ -34,6 +36,15 @@ class SalonCreatorApp extends StatelessWidget {
         '/user/profile/get': (context) => UserProfileScreen(),
         '/user/profile/update': (context) => UserProfileEditScreen(),
         '/lesson/create': (context) => LessonCreationScreen(),
+        '/lesson/edit': (context) => LessonEditScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/lesson/edit') {
+          final lessonInfo = settings.arguments as LessonInfo;
+          return MaterialPageRoute(
+              builder: (_) => LessonEditScreen(lessonInfo: lessonInfo));
+        }
+        return null;
       },
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),

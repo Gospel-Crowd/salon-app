@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart';
 import 'package:salon_creator/models/creator_model.dart';
 import 'package:salon_creator/models/lesson.dart';
 import 'package:salon_creator/models/salon.dart';
@@ -22,6 +23,12 @@ class DbHandler {
     salonCollectionRef =
         FirebaseFirestore.instance.collection(salonsCollection);
   }
+  Future deleteLesson(String lessonId, String salonId) async =>
+      await salonCollectionRef
+          .doc(salonId)
+          .collection("lessons")
+          .doc(lessonId)
+          .delete();
 
   Future setUser(UserModel userModel) =>
       userCollectionRef.doc(userModel.email).set(userModel.toMap());
@@ -49,6 +56,12 @@ class DbHandler {
           .collection("lessons")
           .doc()
           .set(lesson.toMap());
+  Future updateLesson(Lesson lesson, String salonId, String lessonId) async =>
+      await salonCollectionRef
+          .doc(salonId)
+          .collection("lessons")
+          .doc(lessonId)
+          .update(lesson.toMap());
 }
 
 class StorageHandler {
@@ -61,13 +74,23 @@ class StorageHandler {
     imageFileRef = FirebaseStorage.instance.ref().child(imageFilePath);
   }
 
+  Future<void> deleteImage(String url) async {
+    await FirebaseStorage.instance.ref().child('images').child(url).delete();
+  }
+
   Future<String> uploadResourceAndGetUrl(File file) async {
     if (file != null) {
-      var snapshot =
-          await FirebaseStorage.instance.ref().child('resources').putFile(file);
+      String fileName = basename(file.path);
+      var snapshot = await FirebaseStorage.instance
+          .ref()
+          .child('resources/$fileName')
+          .putFile(file);
 
-      return snapshot.ref.getDownloadURL();
+      if (snapshot != null) {
+        return await snapshot.ref.getDownloadURL();
+      }
     }
+    print("Something went wrong");
     return null;
   }
 

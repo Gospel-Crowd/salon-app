@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
                 drawer: _buildDrawer(context, creatorModel),
                 body: TabBarView(
                   children: [
-                    LessonListScreen(),
+                    LessonListScreen(creator: creatorModel),
                     MemberListScreen(),
                   ],
                 ),

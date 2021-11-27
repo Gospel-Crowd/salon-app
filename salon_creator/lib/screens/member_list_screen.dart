@@ -55,20 +55,22 @@ class _MemberListScreenState extends State<MemberListScreen> {
       userList.add(
         GestureDetector(
           onTap: () {},
-          child: Container(
-            child: Column(
-              children: [
-                _buildMemberIcon(userModel),
-                SizedBox(height: 4),
-                Text(
-                  userModel.profile.name,
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-                Divider(
-                  color: Color.fromRGBO(200, 200, 200, 1),
-                  height: 16,
-                ),
-              ],
+          child: FittedBox(
+            child: Container(
+              child: Column(
+                children: [
+                  _buildMemberIcon(userModel),
+                  SizedBox(height: 4),
+                  Text(
+                    userModel.profile.name,
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                  Divider(
+                    color: Color.fromRGBO(200, 200, 200, 1),
+                    height: 16,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
