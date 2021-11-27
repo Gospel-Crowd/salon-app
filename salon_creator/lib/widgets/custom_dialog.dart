@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void showCustomDialog({
-  title,
+  Text title,
   content,
   leftFunction,
   leftButtonText,
@@ -14,7 +14,7 @@ void showCustomDialog({
     builder: (_) {
       return AlertDialog(
         contentPadding: EdgeInsets.zero,
-        title: title,
+        title: Align(child: title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

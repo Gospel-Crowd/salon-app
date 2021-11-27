@@ -1,3 +1,5 @@
+import 'package:salon_creator/models/resource.dart';
+
 class Lesson {
   String salonId;
   String name;
@@ -6,7 +8,7 @@ class Lesson {
   String category;
   String description;
   bool isPublish;
-  List<Map<String, dynamic>> resources;
+  List<Resource> resources;
 
   Lesson({
     this.salonId,
@@ -28,7 +30,7 @@ class Lesson {
       'category': this.category,
       'description': this.description,
       'isPublish': this.isPublish,
-      'resources': this.resources,
+      'resources': this.resources.map((e) => e.toMap()).toList(),
     };
   }
 
@@ -40,7 +42,9 @@ class Lesson {
     this.category = map['category'];
     this.description = map['description'];
     this.isPublish = map['isPublish'];
-    this.resources =
-        map['resources'].cast<String>() as List<Map<String, dynamic>>;
+
+    this.resources = (map['resources'] as List<dynamic>)
+        .map((e) => Resource.fromMap(e))
+        .toList();
   }
 }

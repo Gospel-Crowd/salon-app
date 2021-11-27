@@ -1,42 +1,53 @@
 import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:salon_creator/common/color.dart';
 import 'package:salon_creator/firebase/database.dart';
-import 'package:salon_creator/models/creator_model.dart';
 import 'package:salon_creator/models/lesson.dart';
 import 'package:salon_creator/models/resource.dart';
 import 'package:salon_creator/widgets/custom_button.dart';
 import 'package:salon_creator/widgets/custom_dialog.dart';
 import 'package:salon_creator/widgets/custom_label.dart';
 import 'package:salon_creator/widgets/custom_textfield.dart';
+import 'package:salon_creator/widgets/lesson_card.dart';
 import 'package:salon_creator/widgets/custom_progress_indicator.dart';
 
-class LessonCreationScreen extends StatefulWidget {
-  const LessonCreationScreen({Key key, this.creatorModel}) : super(key: key);
-
-  final CreatorModel creatorModel;
+class LessonEditScreen extends StatefulWidget {
+  const LessonEditScreen({
+    this.lessonInfo,
+    Key key,
+  }) : super(key: key);
+  final LessonInfo lessonInfo;
 
   @override
-  _LessonCreationScreenState createState() => _LessonCreationScreenState();
+  _LessonEditScreenState createState() => _LessonEditScreenState();
 }
 
-class _LessonCreationScreenState extends State<LessonCreationScreen> {
+class _LessonEditScreenState extends State<LessonEditScreen> {
   final dbHandler = DbHandler();
-  final storageHandler = StorageHandler();
-
+  String path = "";
   bool _isPublished = false;
   bool _isFormFilled = false;
   bool _operationInProgress = false;
-  List<File> _resources = [];
-  List<String> _resourcesList = [];
+  bool _switchToNewThumbnail = false;
+  bool _switchToNewMedia = false;
+  String _storageThumbnailUrl;
+  String _storageMediaUrl;
+  List<Resource> _oldResourcesList = [];
+  List<Resource> _newResourcesList = [];
+  List<Resource> _currentResource = [];
   TextEditingController _categoriesController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _lessonNameController = TextEditingController();
   XFile _imageFile;
   XFile _mediaFile;
   XFile _thumbnailFile;
+  Lesson _newLessonDetail;
+  LessonInfo arguments;
 
   Future<XFile> _pickImage() async {
     final ImagePicker imagePicker = ImagePicker();
@@ -56,16 +67,15 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         _thumbnailFile != null ||
         _categoriesController.text.isNotEmpty ||
         _descriptionController.text.isNotEmpty ||
-        _resourcesList.isNotEmpty ||
-        _lessonNameController.text.isNotEmpty;
+        _newResourcesList.isNotEmpty ||
+        _lessonNameController.text.isNotEmpty ||
+        _isPublished != _isPublished;
     setState(() {
       _isFormFilled = _hasProfileChanged;
     });
   }
 
-  void _changeSwitch(bool e) => setState(() => _isPublished = e);
-
-  void _showBottomSheet() async {
+  _showBottomSheet() async {
     return await showModalBottomSheet(
       context: context,
       builder: (_) {
@@ -78,7 +88,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                 onTap: () async {
                   final _imageFile = await _pickImage();
                   setState(() {
-                    _mediaFile = _imageFile;
+                    _newLessonDetail.mediaUrl = _imageFile.path;
                   });
                   Navigator.pop(context);
                 },
@@ -104,8 +114,10 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     if (result != null) {
       for (int i = 0; i < result.count; i++) {
         setState(() {
-          _resourcesList.add(result.names[i]);
-          _resources.add(File(result.paths[i]));
+          _currentResource.add(Resource(
+            displayName: result.files[i].name,
+            url: File(result.paths[i]).path,
+          ));
         });
       }
     } else {
@@ -113,13 +125,59 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     }
   }
 
-  @override
+  Future<void> getCurrentLessonDetails(LessonInfo lessonInfo) async {
+    final data = await FirebaseFirestore.instance
+        .collection(DbHandler.salonsCollection)
+        .doc(widget.lessonInfo.salonId)
+        .collection(DbHandler.lessonsCollection)
+        .doc(widget.lessonInfo.lessonId)
+        .get()
+        .whenComplete(() => null);
+    _newLessonDetail = Lesson.fromMap(data.data());
+  }
+
+  void _changeSwitch(bool e) => setState(() => _newLessonDetail.isPublish = e);
+
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _operationInProgress ? null : _buildAppBar(context),
-      body: _operationInProgress
-          ? CustomProgressIndicator(title: "作成中")
-          : _buildLessonCreationInner(context),
+    CollectionReference lesson = FirebaseFirestore.instance
+        .collection(DbHandler.salonsCollection)
+        .doc(widget.lessonInfo.salonId)
+        .collection(DbHandler.lessonsCollection);
+    return FutureBuilder<DocumentSnapshot>(
+      future: lesson.doc(widget.lessonInfo.lessonId).get(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text("Something went wrong");
+        }
+        if (snapshot.hasData && !snapshot.data.exists) {
+          return Text("Document does not exist");
+        }
+        if (snapshot.hasData) {
+          if (_newLessonDetail == null) {
+            _newLessonDetail = Lesson.fromMap(snapshot.data.data());
+            _currentResource = [..._newLessonDetail.resources];
+          }
+
+          if (_newLessonDetail.mediaUrl != null && _storageMediaUrl == null) {
+            _storageMediaUrl = _newLessonDetail.mediaUrl;
+          }
+
+          if (_newLessonDetail.thumbnailUrl != null &&
+              _storageThumbnailUrl == null) {
+            _storageThumbnailUrl = _newLessonDetail.thumbnailUrl;
+          }
+
+          return Scaffold(
+            appBar: _operationInProgress ? null : _buildAppBar(context),
+            body: _operationInProgress
+                ? CustomProgressIndicator(title: "作成中です")
+                : _buildLessonCreationInner(context),
+          );
+        }
+        return Scaffold(
+          body: CustomProgressIndicator(title: "読み込み中"),
+        );
+      },
     );
   }
 
@@ -144,8 +202,9 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                 _buildMediaPreviewerDivider("動画・写真"),
                 SizedBox(height: 8),
                 _buildMediaFileContainer(),
-                _buildSalonDetailForms(screenWidth),
+                _buildSalonDetailForms(screenWidth, _newLessonDetail),
                 _isFormFilled ? Container() : Text("空欄の部分があります"),
+                SizedBox(height: 4),
                 _buildLessonSaveButton(screenWidth, screenHeight),
                 SizedBox(height: 24),
               ],
@@ -172,7 +231,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
               setState(() {
                 _operationInProgress = true;
               });
-              await _saveLessonDetail().whenComplete(() {
+              await _updateLessonDetail().whenComplete(() {
                 setState(() {
                   _operationInProgress = false;
                 });
@@ -180,28 +239,32 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
               });
             }
           : null,
-      text: _isPublished ? "保存" : "下書きを保存",
+      text: _newLessonDetail.isPublish ? "公開する" : "下書きを保存",
       width: screenWidth * 0.4,
       height: screenHeight * 0.06,
     );
   }
 
   Widget _buildThumbnailFileContainer() {
-    final screenWidth = MediaQuery.of(context).size.width;
-
+    final mq = MediaQuery.of(context).size;
+    final screenWidth = mq.width;
     return ConstrainedBox(
       constraints: BoxConstraints(minWidth: screenWidth, minHeight: 50),
       child: Container(
         color: Color.fromRGBO(195, 195, 195, 0.3),
         child: AspectRatio(
           aspectRatio: 16 / 9,
-          child: _thumbnailFile == null
+          child: _newLessonDetail.thumbnailUrl == null
               ? TextButton(
-                  child: Icon(Icons.add_circle, size: 64),
+                  child: Icon(
+                    Icons.add_circle,
+                    size: 64,
+                  ),
                   onPressed: () async {
                     _imageFile = await _pickImage();
                     setState(() {
-                      _thumbnailFile = _imageFile;
+                      _newLessonDetail.thumbnailUrl = _imageFile.path;
+                      _switchToNewThumbnail = true;
                     });
                   },
                 )
@@ -212,7 +275,9 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                       height: screenWidth * 0.563,
                       width: screenWidth,
                       fit: BoxFit.cover,
-                      image: FileImage(File(_thumbnailFile.path)),
+                      image: _switchToNewThumbnail
+                          ? FileImage(File(_newLessonDetail.thumbnailUrl))
+                          : NetworkImage(_newLessonDetail.thumbnailUrl),
                     ),
                     _buildDeleteButton(_buildDeleteThumbnailConfirmationDialog),
                   ],
@@ -223,17 +288,20 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
   }
 
   Widget _buildMediaFileContainer() {
-    final screenWidth = MediaQuery.of(context).size.width;
-
+    final mq = MediaQuery.of(context).size;
+    final screenWidth = mq.width;
     return ConstrainedBox(
       constraints: BoxConstraints(minWidth: screenWidth, minHeight: 50),
       child: Container(
         color: Color.fromRGBO(195, 195, 195, 0.3),
         child: AspectRatio(
           aspectRatio: 16 / 9,
-          child: _mediaFile == null
+          child: _newLessonDetail.mediaUrl == null
               ? TextButton(
-                  child: Icon(Icons.add_circle, size: 64),
+                  child: Icon(
+                    Icons.add_circle,
+                    size: 64,
+                  ),
                   onPressed: _showBottomSheet,
                 )
               : Stack(
@@ -243,7 +311,9 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                       height: screenWidth * 0.563,
                       width: screenWidth,
                       fit: BoxFit.cover,
-                      image: FileImage(File(_mediaFile.path)),
+                      image: _switchToNewMedia
+                          ? FileImage(File(_newLessonDetail.mediaUrl))
+                          : NetworkImage(_newLessonDetail.mediaUrl),
                     ),
                     _buildDeleteButton(_buildDeleteMediaFileConfirmationDialog),
                   ],
@@ -253,7 +323,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     );
   }
 
-  Widget _buildSalonDetailForms(double screenWidth) {
+  Widget _buildSalonDetailForms(double screenWidth, Lesson lesson) {
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: screenWidth * 0.05,
@@ -261,11 +331,12 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       child: Column(
         children: [
           SizedBox(height: 16),
-          _buildSalonNameForm(),
+          _buildSalonNameForm(lesson.name != null ? lesson.name : ""),
           Divider(height: 32),
-          _buildCategoryForm(),
+          _buildCategoryForm(lesson.category != null ? lesson.category : ""),
           Divider(height: 32),
-          _buildContentForm(),
+          _buildContentForm(
+              lesson.description != null ? lesson.description : ""),
           Divider(height: 32),
           _buildResourceFileUploadForm(),
           Divider(height: 32),
@@ -276,7 +347,8 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
                 "公開",
                 style: Theme.of(context).textTheme.headline3,
               ),
-              Switch(value: _isPublished, onChanged: _changeSwitch),
+              Switch(
+                  value: _newLessonDetail.isPublish, onChanged: _changeSwitch),
             ],
           ),
           SizedBox(height: 16),
@@ -309,12 +381,12 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     return Container(
       height: 200,
       child: ListView.builder(
-        itemCount: _resourcesList.length,
+        itemCount: _currentResource.length,
         itemBuilder: (BuildContext context, index) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildResourceFileRow(index, context),
+              _buildResourceFileRow(context, _currentResource[index], index),
             ],
           );
         },
@@ -322,14 +394,18 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     );
   }
 
-  Widget _buildResourceFileRow(int index, BuildContext context) {
+  Widget _buildResourceFileRow(
+      BuildContext context, Resource resource, int index) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
           child: Text(
-            _resourcesList[index],
-            style: Theme.of(context).textTheme.headline4,
+            resource.displayName,
+            style: Theme.of(context)
+                .textTheme
+                .headline4
+                .copyWith(color: primaryColor),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -343,46 +419,50 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     );
   }
 
-  Widget _buildSalonNameForm() {
+  Widget _buildSalonNameForm(String hint) {
     return TextFieldWithLabel(
       maxLines: 1,
       onChanged: (_) => _updateScreenContext(),
       controller: _lessonNameController,
       title: "レッスン名",
-      hintText: "ゴスペルピアノ",
+      hintText: hint,
     );
   }
 
-  Widget _buildCategoryForm() {
+  Widget _buildCategoryForm(String hint) {
     return TextFieldWithLabel(
       maxLines: 1,
       onChanged: (_) => _updateScreenContext(),
       controller: _categoriesController,
       title: "カテゴリー",
-      hintText: "ゴスペル、ピアノ、ギター等",
+      hintText: hint,
     );
   }
 
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
       iconTheme: IconThemeData(
-        color: primaryColor,
+        color: primaryColor, //change your color here
       ),
       title: Text("レッスン作成"),
     );
   }
 
-  Widget _buildContentForm() {
+  Widget _buildContentForm(String hint) {
     return Column(
       children: [
-        CustomLabel(title: "説明文"),
-        SizedBox(height: 12),
-        _buildDescriptionTextField(),
+        CustomLabel(
+          title: "説明文",
+        ),
+        SizedBox(
+          height: 12,
+        ),
+        _buildDescriptionTextField(hint),
       ],
     );
   }
 
-  Widget _buildDescriptionTextField() {
+  Widget _buildDescriptionTextField(String hint) {
     return Container(
       height: 216,
       child: TextField(
@@ -392,7 +472,9 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
         keyboardType: TextInputType.multiline,
         maxLength: 300,
         maxLines: 100,
-        style: Theme.of(context).textTheme.headline4,
+        style: TextStyle(
+          fontSize: 16,
+        ),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
           focusedBorder: OutlineInputBorder(
@@ -407,7 +489,7 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
               width: 0.5,
             ),
           ),
-          hintText: "レッスン内容",
+          hintText: hint,
         ),
       ),
     );
@@ -438,15 +520,16 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       title: Text(
         "本当に削除しますか?",
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headline3,
+        style: TextStyle(
+          fontSize: 18,
+        ),
       ),
       content: "選択されているファイルが削除されます",
       leftButtonText: "削除する",
       leftFunction: () {
         setState(() {
-          _resourcesList.removeAt(index);
+          _currentResource.removeAt(index);
         });
-
         Navigator.pop(context);
       },
       rightButtonText: "取り消し",
@@ -462,13 +545,15 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       title: Text(
         "本当に削除しますか?",
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headline3,
+        style: TextStyle(
+          fontSize: 18,
+        ),
       ),
       content: "サムネイルを削除しますか？",
       leftButtonText: "削除する",
       leftFunction: () {
         setState(() {
-          _thumbnailFile = null;
+          _newLessonDetail.thumbnailUrl = null;
         });
         Navigator.of(context).pop();
       },
@@ -485,15 +570,17 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
       title: Text(
         "本当に削除しますか?",
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headline3,
+        style: TextStyle(
+          fontSize: 18,
+        ),
       ),
       content: "選択されている画像・動画が削除されます",
       leftButtonText: "削除する",
       leftFunction: () {
         setState(() {
-          _mediaFile = null;
+          _newLessonDetail.mediaUrl = null;
+          _switchToNewMedia = true;
         });
-
         Navigator.of(context).pop();
       },
       rightButtonText: "取り消し",
@@ -503,49 +590,75 @@ class _LessonCreationScreenState extends State<LessonCreationScreen> {
     );
   }
 
-  Future _saveLessonDetail() async {
-    final CreatorModel creator = ModalRoute.of(context).settings.arguments;
+  Future _updateLessonDetail() async {
     final dbHandler = DbHandler();
     final storageHandler = StorageHandler();
     Lesson lesson = Lesson();
-    lesson.resources = [];
-    lesson.salonId = creator.salonId;
+    if (_newLessonDetail.thumbnailUrl != _storageThumbnailUrl) {
+      storageHandler.deleteImage(_storageThumbnailUrl);
+      if (_newLessonDetail.mediaUrl != null) {
+        lesson.mediaUrl = await storageHandler
+            .uploadImageAndGetUrl(File(_newLessonDetail.mediaUrl));
+      }
+    } else {
+      lesson.thumbnailUrl = _newLessonDetail.mediaUrl;
+    }
+    if (_storageThumbnailUrl != _newLessonDetail.thumbnailUrl) {
+      storageHandler.deleteImage(_storageThumbnailUrl);
+      if (_newLessonDetail.thumbnailUrl != null) {
+        lesson.thumbnailUrl = await storageHandler
+            .uploadImageAndGetUrl(File(_newLessonDetail.thumbnailUrl));
+      } else {
+        lesson.thumbnailUrl = _newLessonDetail.thumbnailUrl;
+      }
+    } else {
+      lesson.mediaUrl = _newLessonDetail.mediaUrl;
+    }
+
+    lesson.resources = <Resource>[];
+    lesson.salonId = widget.lessonInfo.salonId;
     lesson.name = _lessonNameController.text.isNotEmpty
         ? _lessonNameController.text
-        : null;
+        : _newLessonDetail.name.isNotEmpty
+            ? _newLessonDetail.name
+            : null;
     lesson.category = _categoriesController.text.isNotEmpty
         ? _categoriesController.text
-        : null;
+        : _newLessonDetail.category.isNotEmpty
+            ? _newLessonDetail.category
+            : null;
     lesson.description = _descriptionController.text.isNotEmpty
         ? _descriptionController.text
-        : null;
-    lesson.isPublish = _isPublished;
+        : _newLessonDetail.description.isNotEmpty
+            ? _newLessonDetail.description
+            : null;
+    lesson.isPublish = _newLessonDetail.isPublish;
 
-    lesson.mediaUrl = _mediaFile != null
-        ? await storageHandler.uploadImageAndGetUrl(File(_mediaFile.path))
-        : null;
-
-    lesson.thumbnailUrl = _thumbnailFile != null
-        ? await storageHandler.uploadImageAndGetUrl(File(_thumbnailFile.path))
-        : null;
-
-    await _addResourcesToLesson(lesson);
-
-    await dbHandler.addLesson(lesson, widget.creatorModel.salonId);
-  }
-
-  Future<void> _addResourcesToLesson(Lesson lesson) async {
-    if (_resourcesList != null) {
-      for (int i = 0; i < _resourcesList.length; i++) {
-        lesson.resources.add(
-          Resource(
-            displayName: _resourcesList[i],
-            url: await storageHandler.uploadResourceAndGetUrl(
-              File(_resources[i].path),
-            ),
-          ),
-        );
+    if (_newResourcesList != null) {
+      // lesson.resources.addAll(
+      //   _newLessonDetail.resources.map(
+      //     (e) => Resource(displayName: e.displayName, url: e.url),
+      //   ),
+      // );
+      for (int i = 0; i < _currentResource.length; i++) {
+        final url = _currentResource[i].url;
+        final displayName = _currentResource[i].displayName;
+        if (!url.startsWith("https://firebasestorage.googleapis.com")) {
+          final downloadedUrl =
+              await storageHandler.uploadResourceAndGetUrl(File(url));
+          assert(downloadedUrl.isNotEmpty);
+          lesson.resources.add(Resource(
+            displayName: displayName,
+            url: downloadedUrl,
+          ));
+        } else {
+          lesson.resources.add(_currentResource[i]);
+        }
       }
     }
+    _switchToNewMedia = false;
+    _switchToNewThumbnail = false;
+    await dbHandler.updateLesson(
+        lesson, widget.lessonInfo.salonId, widget.lessonInfo.lessonId);
   }
 }
